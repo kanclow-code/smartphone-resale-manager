@@ -75,6 +75,31 @@ button{border:0;border-radius:8px;padding:11px 13px;font-size:14px;font-weight:b
   display:inline-block;
 }
   
+  .status-badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+  background:#e0f2fe;
+  color:#0369a1;
+  margin:4px 0 8px;
+  }
+  .status-badge.stock{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.status-badge.listed{
+  background:#fef3c7;
+  color:#b45309;
+}
+
+.status-badge.sold{
+  background:#dcfce7;
+  color:#15803d;
+}
+  
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 .actions button{flex:1}
 hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}
@@ -520,8 +545,9 @@ function render(){
     const currentProfit=profit(p);
 const profitElementClass=currentProfit>=0?"profit":"loss";
     el.innerHTML=`
-      <h3></h3>
-      <p class="small"></p>
+     <h3></h3>
+<p class="status-badge"></p>
+<p class="small"></p>
       <p>仕入れ決済額：<strong></strong><br>
       輸入費用込み：<strong></strong><br>
       販売価格：<strong></strong><br>
@@ -533,6 +559,12 @@ const profitElementClass=currentProfit>=0?"profit":"loss";
         <button class="secondary sold"></button>
         <button class="danger delete">削除</button>
       </div>`;
+const statusBadge=el.querySelector(".status-badge");
+statusBadge.textContent=p.status;
+statusBadge.classList.add(
+  p.status==="販売済み"?"sold":
+  p.status==="出品中"?"listed":"stock"
+);
     el.querySelector("h3").textContent=p.name;
     el.querySelectorAll("p")[0].textContent=p.status+" ／ "+p.site;
     const strong=el.querySelectorAll("strong");
