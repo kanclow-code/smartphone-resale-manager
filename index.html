@@ -198,6 +198,9 @@ hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}
 <label>実際の販売価格（販売済みの場合）</label>
 <input id="actualPrice" type="number" min="0" placeholder="実際に売れた金額">
 
+<label>実際の販売日</label>
+<input id="soldDate" type="date">
+
 <div class="notice" style="margin-top:13px">
 <strong>利益の計算について</strong><br>
 仕入れ決済額 ＋ 輸入費用 ＋ 国内送料 ＋ 販売手数料を使って計算します。販売手数料率は各サービスの条件に合わせて確認・変更してください。
@@ -212,6 +215,33 @@ hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}
 <button class="primary" type="submit" id="saveButton">商品を登録する</button>
 <button class="secondary hidden" type="button" id="cancelEdit" style="width:100%;margin-top:8px">編集をキャンセル</button>
 </form>
+</section>
+
+<section class="card">
+<h2>📅 月別販売実績</h2>
+<label>集計する月</label>
+<input type="month" id="reportMonth">
+<div class="stats" style="margin-top:12px">
+<div class="stat">
+<span>販売台数</span>
+<strong id="monthCount">0台</strong>
+</div>
+<div class="stat">
+<span>売上合計</span>
+<strong id="monthSales">¥0</strong>
+</div>
+<div class="stat">
+<span>利益合計</span>
+<strong id="monthProfit">¥0</strong>
+</div>
+<div class="stat">
+<span>平均利益</span>
+<strong id="averageProfit">¥0</strong>
+</div>
+</div>
+<hr>
+<h3>販売先別売上</h3>
+<div id="siteReport"></div>
 </section>
 
 <section class="card">
@@ -264,7 +294,8 @@ function normalize(p){
     fee: Number(p.fee !== undefined ? p.fee : 10),
     shipping: Number(p.shipping)||0,
     status: p.status === "販売済" ? "販売済み" : (p.status || "在庫"),
-    actualPrice: Number(p.actualPrice)||0
+    actualPrice: Number(p.actualPrice)||0,
+soldDate: p.soldDate || ""
   };
 }
 products = products.map(normalize);
@@ -350,9 +381,71 @@ function payedTotal(){
   return products.reduce((sum,p)=>sum+(Number(p.payeasy)||0),0);
 }
 
+function renderMonthly(){
+  const monthInput=$("reportMonth");
+  if(!monthInput.value){
+    const now=new Date();
+    monthInput.value=
+      now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  }
+
+  const month=monthInput.value;
+  const sold=products.filter(p=>
+    p.status==="販売済み" &&
+    const today=new Date();
+p.soldDate=
+  today.getFullYear()+"-"+
+  String(today.getMonth()+1).padStart(2,"0")+"-"+
+  String(today.getDate()).padStart(2,"0");
+    p.soldDate &&
+    p.soldDate.slice(0,7)===month
+  );
+
+  const sales=sold.reduce((sum,p)=>sum+(p.actualPrice||p.price),0);
+  const profits=sold.reduce((sum,p)=>sum+profit(p),0);
+
+  $("monthCount").textContent=sold.length+"台";
+  $("monthSales").textContent=yen(sales);
+  $("monthProfit").textContent=yen(profits);
+  $("averageProfit").textContent=yen(sold.length?profits/sold.length:0);
+
+  const report=$("siteReport");
+  report.innerHTML="";
+
+  if(!sold.length){
+    report.textContent="この月の販売実績はありません。";
+    return;
+  }
+
+  const sites={};
+  sold.forEach(p=>{
+    if(!sites[p.site])sites[p.site]={count:0,sales:0,profit:0};
+    sites[p.site].count++;
+    sites[p.site].sales+=p.actualPrice||p.price;
+    sites[p.site].profit+=profit(p);
+  });
+
+  Object.entries(sites).forEach(([name,data])=>{
+    const item=document.createElement("div");
+    item.className="product";
+
+    const title=document.createElement("strong");
+    title.textContent=name;
+
+    const detail=document.createElement("p");
+    detail.textContent=
+      "販売台数："+data.count+"台"+
+      " ／ 売上："+yen(data.sales)+
+      " ／ 利益："+yen(data.profit);
+
+    item.append(title,detail);
+    report.appendChild(item);
+  });
+}
+
 function render(){
   renderPayments();
-
+  renderMonthly();
   const stock=products.filter(p=>p.status!=="販売済み").length;
   const sold=products.filter(p=>p.status==="販売済み");
   $("stockCount").textContent=stock+"台";
@@ -413,7 +506,11 @@ el.querySelectorAll("p")[2].textContent =
     el.querySelector(".edit").onclick=()=>editProduct(p.id);
     el.querySelector(".sold").textContent=p.status==="販売済み"?"在庫に戻す":"販売済みにする";
     el.querySelector(".sold").onclick=()=>{
-      if(p.status==="販売済み"){p.status="在庫";p.actualPrice=0;}
+      if(p.status==="販売済み"){
+  p.status="在庫";
+  p.actualPrice=0;
+  p.soldDate="";
+      }
       else{
         const value=prompt("実際の販売価格を入力してください",String(p.price));
         if(value===null)return;
@@ -475,6 +572,7 @@ function editProduct(id){
   $("shipping").value=p.shipping;
   $("status").value=p.status;
   $("actualPrice").value=p.actualPrice||"";
+  $("soldDate").value=p.soldDate||"";
   $("formTitle").textContent="✏️ 商品を編集";
   $("saveButton").textContent="変更を保存する";
   $("cancelEdit").classList.remove("hidden");
@@ -505,7 +603,8 @@ $("productForm").addEventListener("submit",e=>{
     fee:moneyInput("fee"),
     shipping:moneyInput("shipping"),
     status:$("status").value,
-    actualPrice:moneyInput("actualPrice")
+    actualPrice:moneyInput("actualPrice"),
+soldDate:$("soldDate").value
   };
   if(p.currency==="USD"&&p.rate<=0){alert("為替レートを入力してください");return;}
   if(id){
@@ -518,6 +617,7 @@ $("productForm").addEventListener("submit",e=>{
 
 $("cancelEdit").onclick=resetForm;
 $("filter").onchange=render;
+  $("reportMonth").onchange=renderMonthly;
 ["currency","cost","rate","payeasy","bankFee","international","duty","importTax","other","price","fee","shipping"].forEach(id=>{
   $(id).addEventListener("input",updatePreview);
   $(id).addEventListener("change",updatePreview);
