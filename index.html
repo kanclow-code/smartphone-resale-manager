@@ -504,14 +504,16 @@ const difference = p.payeasy > 0
   ? p.payeasy - convertedCost
   : 0;
 
+
 el.querySelectorAll("p")[2].textContent =
   "注文番号：" + (p.orderNo || "未登録") +
   " ／ 支払い：" + p.paymentStatus +
   "\n支払日：" + (p.paidDate || "未登録") +
+  "\n販売日：" + (p.soldDate || "未登録") +
   "\nUSD換算額：" + yen(convertedCost) +
   "\nペイジーとの差額：" +
   (p.payeasy > 0 ? yen(difference) : "未入力");
-      "注文番号："+(p.orderNo||"未登録")+" ／ 支払い："+p.paymentStatus;
+
     el.querySelector(".edit").onclick=()=>editProduct(p.id);
     el.querySelector(".sold").textContent=p.status==="販売済み"?"在庫に戻す":"販売済みにする";
     el.querySelector(".sold").onclick=()=>{
