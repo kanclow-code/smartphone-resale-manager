@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827">
 <title>輸入スマホ転売管理</title>
 <style>
@@ -10,86 +10,266 @@
 body{margin:0;background:#f1f5f9;color:#172033;font-family:Arial,sans-serif}
 header{background:#111827;color:white;padding:22px 18px}
 header h2{margin:0 0 6px}
-main{padding:16px;max-width:650px;margin:auto}
+main{padding:15px;max-width:650px;margin:auto}
 .card{background:white;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
-input,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px}
+h3{margin-top:0}
 label{font-size:13px;font-weight:bold}
+input,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px;background:white}
 button{background:#2563eb;color:white;border:0;border-radius:9px;padding:13px;width:100%;font-size:15px;font-weight:bold}
-.stat{font-size:25px;font-weight:bold;color:#2563eb}
-.item{border-bottom:1px solid #e2e8f0;padding:12px 0}
+button.secondary{background:#475569}
+button.danger{background:#dc2626}
+.stat{font-size:24px;font-weight:bold;color:#2563eb}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{background:#f8fafc;border-radius:10px;padding:12px}
+.mini small{color:#64748b}
+.item{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.item:last-child{border:0}
 .small{color:#64748b;font-size:12px}
+.green{color:#059669;font-weight:bold}
+.red{color:#dc2626;font-weight:bold}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions button{flex:1;font-size:13px;padding:10px}
 </style>
 </head>
 <body>
 <header>
 <h2>📱 輸入スマホ転売管理</h2>
-<div>仕入れ・販売・利益をまとめて管理</div>
+<div>仕入れ・販売・純利益をまとめて管理</div>
 </header>
 <main>
 <div class="card">
 <h3>📊 売上・利益サマリー</h3>
-<div>販売台数：<span id="count" class="stat">0</span> 台</div>
-<div>累計利益：<span id="profit" class="stat">¥0</span></div>
+<div class="grid">
+<div class="mini">
+<small>販売台数</small>
+<div id="count" class="stat">0</div>
 </div>
+<div class="mini">
+<small>累計純利益</small>
+<div id="profit" class="stat">¥0</div>
+</div>
+<div class="mini">
+<small>在庫・出品中</small>
+<div id="stock" class="stat">0</div>
+</div>
+<div class="mini">
+<small>累計売上</small>
+<div id="sales" class="stat">¥0</div>
+</div>
+</div>
+</div>
+
 <div class="card">
 <h3>＋ 商品を登録</h3>
 <label>商品名</label>
 <input id="name" placeholder="例：Xiaomi 18 Pro Max">
+
 <label>仕入れ価格（円）</label>
-<input id="cost" type="number" placeholder="例：100000">
-<label>送料・関税など（円）</label>
-<input id="extra" type="number" placeholder="例：5000">
+<input id="cost" type="number" min="0" placeholder="100000">
+
+<label>輸入送料・関税など（円）</label>
+<input id="extra" type="number" min="0" value="0">
+
 <label>販売予定価格（円）</label>
-<input id="price" type="number" placeholder="例：135000">
+<input id="price" type="number" min="0" placeholder="135000">
+
 <label>販売先</label>
-<select id="site">
-<option>メルカリ</option>
-<option>PayPayフリマ</option>
-<option>ヤフオク</option>
-<option>楽天ラクマ</option>
+<select id="site" onchange="setFee()">
+<option value="メルカリ">メルカリ</option>
+<option value="PayPayフリマ">PayPayフリマ</option>
+<option value="ヤフオク">ヤフオク</option>
+<option value="楽天ラクマ">楽天ラクマ</option>
 </select>
+
+<label>販売手数料率（%）</label>
+<input id="fee" type="number" min="0" max="100" step="0.1" value="10">
+
+<label>国内発送送料（円）</label>
+<input id="shipping" type="number" min="0" value="0">
+
+<div class="mini">
+<small>予想純利益</small>
+<div id="preview" class="stat">¥0</div>
+<small id="previewRate">利益率 0%</small>
+</div>
+<br>
 <button onclick="addItem()">商品を登録する</button>
 </div>
+
 <div class="card">
 <h3>📦 商品一覧</h3>
+<select id="filter" onchange="render()">
+<option value="all">すべて表示</option>
+<option value="在庫">在庫・出品中</option>
+<option value="販売済み">販売済み</option>
+</select>
 <div id="items">登録商品はありません</div>
 </div>
 </main>
+
 <script>
 let products=JSON.parse(localStorage.getItem('products')||'[]');
-function yen(n){return '¥'+Number(n).toLocaleString('ja-JP')}
-function render(){
-document.getElementById('count').textContent=products.filter(p=>p.sold).length;
-document.getElementById('profit').textContent=yen(products.filter(p=>p.sold).reduce((s,p)=>s+p.profit,0));
-document.getElementById('items').innerHTML=products.length?products.map((p,i)=>`
-<div class="item">
-<strong>${p.name}</strong><br>
-<span class="small">${p.site}・${p.sold?'販売済み':'出品前'}</span>
-<p>仕入れ総額：${yen(p.cost+p.extra)}<br>販売予定：${yen(p.price)}<br>予定利益：${yen(p.price-p.cost-p.extra)}</p>
-<button onclick="sell(${i})">${p.sold?'販売済み':'販売完了にする'}</button>
-</div>`).join(''):'登録商品はありません';
+
+const rates={
+'メルカリ':10,
+'PayPayフリマ':5,
+'ヤフオク':10,
+'楽天ラクマ':10
+};
+
+function yen(n){
+return '¥'+Math.round(n).toLocaleString('ja-JP');
 }
+
+function val(id){
+return Number(document.getElementById(id).value)||0;
+}
+
+function setFee(){
+document.getElementById('fee').value=rates[document.getElementById('site').value];
+calcPreview();
+}
+
+function calc(p){
+let total=p.cost+p.extra;
+let fee=p.price*p.fee/100;
+let profit=p.price-fee-p.shipping-total;
+let rate=total>0?profit/total*100:0;
+return {total,fee,profit,rate};
+}
+
+function calcPreview(){
+let p={
+cost:val('cost'),
+extra:val('extra'),
+price:val('price'),
+fee:val('fee'),
+shipping:val('shipping')
+};
+let r=calc(p);
+document.getElementById('preview').textContent=yen(r.profit);
+document.getElementById('previewRate').textContent='利益率 '+r.rate.toFixed(1)+'%';
+}
+
+['cost','extra','price','fee','shipping'].forEach(id=>{
+document.getElementById(id).addEventListener('input',calcPreview);
+});
+
 function addItem(){
 let name=document.getElementById('name').value.trim();
-let cost=Number(document.getElementById('cost').value);
-let extra=Number(document.getElementById('extra').value);
-let price=Number(document.getElementById('price').value);
-if(!name||cost<=0||price<=0){alert('商品名・仕入れ価格・販売予定価格を入力してください');return}
-products.push({name,cost,extra,price,site:document.getElementById('site').value,sold:false,profit:0});
-save();
-['name','cost','extra','price'].forEach(id=>document.getElementById(id).value='');
+let p={
+name:name,
+cost:val('cost'),
+extra:val('extra'),
+price:val('price'),
+site:document.getElementById('site').value,
+fee:val('fee'),
+shipping:val('shipping'),
+status:'在庫',
+actualPrice:0
+};
+if(!name||p.cost<=0||p.price<=0){
+alert('商品名・仕入れ価格・販売予定価格を入力してください');
+return;
 }
+if(p.fee<0||p.fee>100||p.shipping<0||p.extra<0){
+alert('手数料率・送料・輸入費用を確認してください');
+return;
+}
+products.push(p);
+save();
+['name','cost','price'].forEach(id=>document.getElementById(id).value='');
+document.getElementById('extra').value=0;
+document.getElementById('shipping').value=0;
+calcPreview();
+alert('商品を登録しました！');
+}
+
+function escapeHTML(s){
+return String(s).replace(/[&<>"']/g,c=>({
+'&':'&amp;','<':'&lt;','>':'&gt;',
+'"':'&quot;',"'":'&#39;'
+}[c]));
+}
+
 function sell(i){
 let p=products[i];
-if(p.sold)return;
-p.profit=p.price-p.cost-p.extra;
-p.sold=true;
+let answer=prompt('実際の販売価格を入力してください',p.price);
+if(answer===null)return;
+let price=Number(answer);
+if(!Number.isFinite(price)||price<=0){
+alert('正しい販売価格を入力してください');
+return;
+}
+p.actualPrice=price;
+p.status='販売済み';
 save();
 }
+
+function restore(i){
+products[i].status='在庫';
+products[i].actualPrice=0;
+save();
+}
+
+function removeItem(i){
+if(!confirm('この商品を削除しますか？'))return;
+products.splice(i,1);
+save();
+}
+
+function render(){
+let sold=products.filter(p=>p.status==='販売済み');
+let stock=products.filter(p=>p.status!=='販売済み');
+let totalProfit=sold.reduce((s,p)=>{
+return s+calc({...p,price:p.actualPrice}).profit;
+},0);
+let totalSales=sold.reduce((s,p)=>s+p.actualPrice,0);
+
+document.getElementById('count').textContent=sold.length;
+document.getElementById('profit').textContent=yen(totalProfit);
+document.getElementById('stock').textContent=stock.length;
+document.getElementById('sales').textContent=yen(totalSales);
+
+let filter=document.getElementById('filter').value;
+let list=products.map((p,i)=>({...p,index:i}))
+.filter(p=>filter==='all'||p.status===filter);
+
+document.getElementById('items').innerHTML=list.length?
+list.map(p=>{
+let r=calc(p);
+let actual=p.status==='販売済み'
+?calc({...p,price:p.actualPrice}):r;
+return `
+<div class="item">
+<strong>${escapeHTML(p.name)}</strong><br>
+<span class="small">${escapeHTML(p.site)}・${p.status}</span>
+<p>
+仕入れ総額：${yen(r.total)}<br>
+販売価格：${yen(p.status==='販売済み'?p.actualPrice:p.price)}<br>
+手数料：${yen(actual.fee)}<br>
+国内送料：${yen(p.shipping)}<br>
+<span class="${actual.profit>=0?'green':'red'}">
+純利益：${yen(actual.profit)}
+</span><br>
+利益率：${actual.rate.toFixed(1)}%
+</p>
+<div class="actions">
+${p.status==='販売済み'
+?`<button class="secondary" onclick="restore(${p.index})">在庫に戻す</button>`
+:`<button onclick="sell(${p.index})">販売完了</button>`}
+<button class="danger" onclick="removeItem(${p.index})">削除</button>
+</div>
+</div>`;
+}).join(''):'登録商品はありません';
+}
+
 function save(){
 localStorage.setItem('products',JSON.stringify(products));
 render();
 }
+
+setFee();
 render();
 </script>
 </body>
