@@ -517,6 +517,8 @@ function render(){
     el.className="product";
     const actual=p.status==="販売済み"&&p.actualPrice>0?p.actualPrice:p.price;
     const fee=actual*p.fee/100;
+    const currentProfit=profit(p);
+const profitElementClass=currentProfit>=0?"profit":"loss";
     el.innerHTML=`
       <h3></h3>
       <p class="small"></p>
@@ -524,7 +526,7 @@ function render(){
       輸入費用込み：<strong></strong><br>
       販売価格：<strong></strong><br>
       販売手数料：<strong></strong><br>
-      利益見込み・実績：<strong class="profit"></strong></p>
+      利益見込み・実績：<strong class="${profitElementClass}"></strong></p>
       <p class="small"></p>
       <div class="actions">
         <button class="secondary edit">編集</button>
