@@ -381,33 +381,38 @@ function payedTotal(){
   return products.reduce((sum,p)=>sum+(Number(p.payeasy)||0),0);
 }
 
+
 function renderMonthly(){
   const monthInput=$("reportMonth");
+
   if(!monthInput.value){
     const now=new Date();
     monthInput.value=
-      now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+      now.getFullYear()+"-"+
+      String(now.getMonth()+1).padStart(2,"0");
   }
 
   const month=monthInput.value;
+
   const sold=products.filter(p=>
     p.status==="販売済み" &&
-    const today=new Date();
-p.soldDate=
-  today.getFullYear()+"-"+
-  String(today.getMonth()+1).padStart(2,"0")+"-"+
-  String(today.getDate()).padStart(2,"0");
     p.soldDate &&
     p.soldDate.slice(0,7)===month
   );
 
-  const sales=sold.reduce((sum,p)=>sum+(p.actualPrice||p.price),0);
-  const profits=sold.reduce((sum,p)=>sum+profit(p),0);
+  const sales=sold.reduce(
+    (sum,p)=>sum+(p.actualPrice||p.price),0
+  );
+
+  const profits=sold.reduce(
+    (sum,p)=>sum+profit(p),0
+  );
 
   $("monthCount").textContent=sold.length+"台";
   $("monthSales").textContent=yen(sales);
   $("monthProfit").textContent=yen(profits);
-  $("averageProfit").textContent=yen(sold.length?profits/sold.length:0);
+  $("averageProfit").textContent=
+    yen(sold.length?profits/sold.length:0);
 
   const report=$("siteReport");
   report.innerHTML="";
@@ -418,8 +423,12 @@ p.soldDate=
   }
 
   const sites={};
+
   sold.forEach(p=>{
-    if(!sites[p.site])sites[p.site]={count:0,sales:0,profit:0};
+    if(!sites[p.site]){
+      sites[p.site]={count:0,sales:0,profit:0};
+    }
+
     sites[p.site].count++;
     sites[p.site].sales+=p.actualPrice||p.price;
     sites[p.site].profit+=profit(p);
@@ -516,7 +525,13 @@ el.querySelectorAll("p")[2].textContent =
         if(value===null)return;
         if(Number(value)<=0){alert("販売価格を入力してください");return;}
         p.actualPrice=Number(value);
-        p.status="販売済み";
+p.status="販売済み";
+
+const today=new Date();
+p.soldDate=
+  today.getFullYear()+"-"+
+  String(today.getMonth()+1).padStart(2,"0")+"-"+
+  String(today.getDate()).padStart(2,"0");
       }
       saveData();render();
     };
@@ -644,7 +659,6 @@ $("importFile").onchange=async e=>{
   e.target.value="";
 };
 
-saveData();
 render();
 updatePreview();
 </script>
