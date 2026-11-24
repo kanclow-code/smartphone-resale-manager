@@ -58,6 +58,33 @@ hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}
 </section>
 
 <section class="card">
+<h2>💳 支払い管理</h2>
+<div class="stats">
+<div class="stat">
+<span>支払い済み</span>
+<strong id="paidCount">0件</strong>
+</div>
+<div class="stat">
+<span>未払い</span>
+<strong id="unpaidCount">0件</strong>
+</div>
+<div class="stat">
+<span>確認中</span>
+<strong id="checkingCount">0件</strong>
+</div>
+<div class="stat">
+<span>ペイジー支払額合計</span>
+<strong id="payeasyTotal">¥0</strong>
+</div>
+</div>
+<hr>
+<h3>未払い・確認中の注文</h3>
+<div id="paymentList">
+<p class="small">未払い・確認中の注文はありません。</p>
+</div>
+</section>
+
+<section class="card">
 <h2 id="formTitle">📦 商品を登録</h2>
 <form id="productForm">
 <input type="hidden" id="editId">
@@ -275,7 +302,57 @@ function updatePreview(){
   $("costPreview").textContent="仕入れ・輸入費用の合計："+yen(total);
 }
 
+
+function renderPayments(){
+  const paid = products.filter(p=>p.paymentStatus==="支払い済み");
+  const unpaid = products.filter(p=>p.paymentStatus==="未払い");
+  const checking = products.filter(p=>p.paymentStatus==="確認中");
+
+  $("paidCount").textContent=paid.length+"件";
+  $("unpaidCount").textContent=unpaid.length+"件";
+  $("checkingCount").textContent=checking.length+"件";
+
+  const total=payedTotal();
+  $("payeasyTotal").textContent=yen(total);
+
+  const list=$("paymentList");
+  list.innerHTML="";
+
+  const pending=[...unpaid,...checking];
+
+  if(!pending.length){
+    list.textContent="未払い・確認中の注文はありません。";
+    return;
+  }
+
+  pending.forEach(p=>{
+    const item=document.createElement("div");
+    item.className="product";
+
+    const title=document.createElement("strong");
+    title.textContent=p.name;
+
+    const detail=document.createElement("p");
+    detail.textContent=
+      "注文番号："+(p.orderNo||"未登録")+
+      " ／ 状況："+p.paymentStatus+
+      " ／ 支払日："+(p.paidDate||"未登録");
+
+    const amount=document.createElement("p");
+    amount.textContent="ペイジー支払額："+yen(p.payeasy);
+
+    item.append(title,detail,amount);
+    list.appendChild(item);
+  });
+}
+
+function payedTotal(){
+  return products.reduce((sum,p)=>sum+(Number(p.payeasy)||0),0);
+}
+
 function render(){
+  renderPayments();
+
   const stock=products.filter(p=>p.status!=="販売済み").length;
   const sold=products.filter(p=>p.status==="販売済み");
   $("stockCount").textContent=stock+"台";
