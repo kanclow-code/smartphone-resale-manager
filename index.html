@@ -280,7 +280,7 @@ function renderMonthlyReport(){
  const sales=db.sales.filter(s=>s.payment!=='キャンセル'&&inMonth(s.date)),paid=sales.filter(s=>s.payment==='入金済み'),unpaid=sales.filter(s=>s.payment==='未入金'),trading=sales.filter(s=>s.payment==='取引中');
  const revenue=paid.reduce((a,s)=>a+num(s.price),0),saleProfit=paid.reduce((a,s)=>a+num(s.profit),0),saleCost=paid.reduce((a,s)=>a+num(s.cost),0),saleCharges=paid.reduce((a,s)=>a+num(s.fee)+num(s.shipping)+num(s.other),0);
  const expenses=db.expenses.filter(e=>inMonth(e.date)),expenseTotal=expenses.reduce((a,e)=>a+num(e.amount),0),operatingProfit=saleProfit-expenseTotal;
- const payout=paid.filter(s=>s.actualPayout!==undefined&&s.actualPayout!==null&&s.actualPayout!==''&&inMonth(s.payoutDate)).reduce((a,s)=>a+num(s.actualPayout),0);
+ const payout=db.sales.filter(s=>s.payment!=='キャンセル'&&s.actualPayout!==undefined&&s.actualPayout!==null&&s.actualPayout!==''&&inMonth(s.payoutDate)).reduce((a,s)=>a+num(s.actualPayout),0);
  const supplierPaid=db.purchases.filter(p=>inMonth(p.paymentDate)).reduce((a,p)=>a+purchasePaidAmount(p),0);
  const purchaseOrders=db.purchases.filter(p=>inMonth(p.date)),purchaseOrderTotal=purchaseOrders.reduce((a,p)=>a+num(p.total),0),purchaseBalanceTotal=purchaseOrders.reduce((a,p)=>a+purchaseBalance(p),0);
  const cards=[['入金済み売上',yen(revenue)],['販売原価',yen(saleCost)],['手数料・送料等',yen(saleCharges)],['販売利益',yen(saleProfit),saleProfit>=0?'green':'red'],['事業経費',yen(expenseTotal)],['経費差引後利益',yen(operatingProfit),operatingProfit>=0?'green':'red'],['未入金売上',yen(unpaid.reduce((a,s)=>a+num(s.price),0))],['取引中売上',yen(trading.reduce((a,s)=>a+num(s.price),0))],['実際の振込入力額',yen(payout)],['仕入れ支払入力額',yen(supplierPaid)],['当月仕入れ総額',yen(purchaseOrderTotal)],['当月仕入れ未払残高',yen(purchaseBalanceTotal)]];
