@@ -97,7 +97,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="row"><h3 id="modalTitle"></h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
 <script>
 const KEY='phone_import_manager_v1';
-const LEGACY_KEY='products';
+const LEGACY_KEY='products';\nconst BACKUP_KEY='phone_import_manager_backup_v1';
 let migrationCount=0;
 let db=load();
 function blank(){return {schemaVersion:2,purchases:[],items:[],sales:[],fees:{mercari:10,paypay:5,yahoo:10,rakuma:10}}}
@@ -135,13 +135,26 @@ function migrateLegacyProducts(rows){
 function load(){
   try{
     const current=localStorage.getItem(KEY);
-    if(current)return normalizeData(JSON.parse(current));
+    if(current){try{return normalizeData(JSON.parse(current))}catch(e){
+      const backup=localStorage.getItem(BACKUP_KEY);
+      if(backup){const recovered=normalizeData(JSON.parse(backup));try{localStorage.setItem(KEY,backup)}catch(ignore){}setTimeout(()=>alert('保存データの読み込みに失敗したため、直前の自動バックアップから復旧しました。最新の変更が一部含まれない可能性があります。JSONバックアップも保存してください。'),500);return recovered}
+      setTimeout(()=>alert('保存データを読み込めませんでした。データを消去せず、復旧用バックアップの有無を確認してください。'),500);return blank()
+    }}
+    const backup=localStorage.getItem(BACKUP_KEY);
+    if(backup){const recovered=normalizeData(JSON.parse(backup));try{localStorage.setItem(KEY,backup)}catch(ignore){}return recovered}
     const legacy=localStorage.getItem(LEGACY_KEY);
     if(legacy){const rows=JSON.parse(legacy);if(Array.isArray(rows)){const migrated=migrateLegacyProducts(rows);migrationCount=rows.length;try{localStorage.setItem(KEY,JSON.stringify(migrated))}catch(e){setTimeout(()=>alert('旧データを読み込みましたが、新形式での保存に失敗しました。端末容量を確保してJSONバックアップを保存してください。'),500)}return migrated}}
     return blank();
-  }catch(e){return blank()}
+  }catch(e){setTimeout(()=>alert('保存データまたは自動バックアップを読み込めませんでした。ブラウザのデータを消去しないでください。'),500);return blank()}
 }
-function save(){try{db.schemaVersion=2;localStorage.setItem(KEY,JSON.stringify(db));renderAll()}catch(e){alert('保存できませんでした。端末の空き容量を確認し、先にバックアップを書き出してください。')}}
+function save(){try{
+  db.schemaVersion=2;
+  const serialized=JSON.stringify(db);
+  try{const previous=localStorage.getItem(KEY);if(previous){JSON.parse(previous);localStorage.setItem(BACKUP_KEY,previous)}}catch(ignore){}
+  localStorage.setItem(KEY,serialized);
+  try{if(!localStorage.getItem(BACKUP_KEY))localStorage.setItem(BACKUP_KEY,serialized)}catch(ignore){}
+  renderAll()
+}catch(e){alert('保存できませんでした。端末の空き容量を確認してください。現在の画面を閉じる前に、可能ならJSONバックアップを書き出してください。')}}
 function yen(n){return '¥'+Math.round(Number(n)||0).toLocaleString('ja-JP')}
 function num(v){return Number(v)||0}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
