@@ -1,12 +1,12 @@
 {
-  "name": "輸入スマホ販売マネージャー",
-  "short_name": "輸入スマホ管理",
+  "name": "ImportFlow",
+  "short_name": "ImportFlow",
   "lang": "ja",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f3f5f8",
   "theme_color": "#101827",
-  "description": "輸入スマホの仕入れ・在庫・販売・利益管理",
+  "description": "輸入商品の仕入れ・輸入コスト・在庫・販売・入金・利益を一元管理",
   "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
