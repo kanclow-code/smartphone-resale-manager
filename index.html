@@ -97,7 +97,8 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="row"><h3 id="modalTitle"></h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
 <script>
 const KEY='phone_import_manager_v1';
-const LEGACY_KEY='products';\nconst BACKUP_KEY='phone_import_manager_backup_v1';
+const LEGACY_KEY='products';
+const BACKUP_KEY='phone_import_manager_backup_v1';
 let migrationCount=0;
 let db=load();
 function blank(){return {schemaVersion:2,purchases:[],items:[],sales:[],fees:{mercari:10,paypay:5,yahoo:10,rakuma:10}}}
@@ -191,7 +192,9 @@ function openItem(id){let it=db.items.find(x=>x.id===id);if(!it)return;let p=db.
 <div><label>販売可否・確認状況</label><select name="compliance">${['未確認','確認中','確認済み','販売保留'].map(v=>`<option ${it.compliance===v?'selected':''}>${v}</option>`).join('')}</select></div>
 <div class="span2"><label>メモ</label><textarea name="memo">${esc(it.memo)}</textarea></div>
 </div><p class="small muted">仕入れ原価：${yen(p?.unitCost||0)} / 状態：${esc(it.status)}</p><button class="primary full">保存</button></form>`)}
-function cleanImei(v){return String(v||'').replace(/[\s-]/g,'')}\nfunction validateImeiPair(a,b,currentId){let first=cleanImei(a),second=cleanImei(b);if(first&&!/^\\d{15}$/.test(first))return 'IMEI 1はハイフンなしの15桁で入力してください。';if(second&&!/^\\d{15}$/.test(second))return 'IMEI 2はハイフンなしの15桁で入力してください。';if(first&&second&&first===second)return 'IMEI 1とIMEI 2に同じ番号は登録できません。';let all=db.items.filter(i=>i.id!==currentId).flatMap(i=>[cleanImei(i.imei),cleanImei(i.imei2)].filter(Boolean));if(first&&all.includes(first))return 'このIMEI 1は別の商品に登録済みです。';if(second&&all.includes(second))return 'このIMEI 2は別の商品に登録済みです。';return ''}\nfunction updateItem(e,id){e.preventDefault();let it=db.items.find(x=>x.id===id);if(!it)return;let values=Object.fromEntries(new FormData(e.target));let problem=validateImeiPair(values.imei,values.imei2,id);if(problem){alert(problem);return}values.imei=cleanImei(values.imei);values.imei2=cleanImei(values.imei2);Object.assign(it,values);closeModal();save()}
+function cleanImei(v){return String(v||'').replace(/[\s-]/g,'')}
+function validateImeiPair(a,b,currentId){let first=cleanImei(a),second=cleanImei(b);if(first&&!/^\d{15}$/.test(first))return 'IMEI 1はハイフンなしの15桁で入力してください。';if(second&&!/^\\d{15}$/.test(second))return 'IMEI 2はハイフンなしの15桁で入力してください。';if(first&&second&&first===second)return 'IMEI 1とIMEI 2に同じ番号は登録できません。';let all=db.items.filter(i=>i.id!==currentId).flatMap(i=>[cleanImei(i.imei),cleanImei(i.imei2)].filter(Boolean));if(first&&all.includes(first))return 'このIMEI 1は別の商品に登録済みです。';if(second&&all.includes(second))return 'このIMEI 2は別の商品に登録済みです。';return ''}
+function updateItem(e,id){e.preventDefault();let it=db.items.find(x=>x.id===id);if(!it)return;let values=Object.fromEntries(new FormData(e.target));let problem=validateImeiPair(values.imei,values.imei2,id);if(problem){alert(problem);return}values.imei=cleanImei(values.imei);values.imei2=cleanImei(values.imei2);Object.assign(it,values);closeModal();save()}
 function openSale(){let available=db.items.filter(i=>i.status==='在庫');if(!available.length){alert('販売登録できる在庫がありません。先に仕入れを登録してください。');return}
 openModal('販売を登録',`<form onsubmit="addSale(event)"><div class="formgrid">
 <div class="span2"><label>販売する商品 *</label><select name="itemId" required>${available.map(i=>`<option value="${i.id}">${esc(i.model)} ${esc(i.storage)} ${esc(i.color)} / ${yen(db.purchases.find(p=>p.id===i.purchaseId)?.unitCost||0)}</option>`).join('')}</select></div>
