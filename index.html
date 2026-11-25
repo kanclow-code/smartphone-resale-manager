@@ -333,7 +333,7 @@ function renderStock(){
     const ageLabel=p?.date?'在庫日数 '+ageDays+'日':'仕入日未登録';
     const myImeis=[cleanImei(i.imei),cleanImei(i.imei2)].filter(Boolean);
     const duplicateImei=myImeis.some(v=>db.items.some(other=>other.id!==i.id&&[cleanImei(other.imei),cleanImei(other.imei2)].includes(v)));
-    const invalidImei=myImeis.some(v=>!/^\\d{15}$/.test(v));
+    const invalidImei=myImeis.some(v=>!/^\d{15}$/.test(v));
     return `<div class="item">
       <div class="row"><b>${esc(i.model)}</b><span class="pill ${i.status==='在庫'?'ok':i.status==='販売済み'?'warn':''}">${esc(i.status)}</span></div>
       <div class="small muted">${esc(i.storage||'容量未登録')} ・ ${esc(i.color||'色未登録')} ・ ${esc(i.condition)}</div>
