@@ -77,7 +77,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <section id="report" class="hidden">
 <div class="row"><h2>月次レポート</h2><button class="primary" onclick="openExpense()">＋ 経費登録</button></div>
 <div class="card"><label for="reportMonth">集計する月</label><input id="reportMonth" type="month" value="${dateNow().slice(0,7)}" onchange="renderMonthlyReport()"><div id="monthlyReport"></div></div>
-<div class="card"><div class="row"><b>経費記録</b><span class="small muted">支払日ベース</span></div><div id="expenseList"></div></div>
+<div class="card"><div class="row"><b>経費記録</b><div class="actions"><span class="small muted">支払日ベース</span><button class="secondary" onclick="exportExpensesCsv()">経費CSV出力</button></div></div><div id="expenseList"></div></div>
 <div class="notice">このレポートは日々の経営管理用です。税務申告用の正式な帳簿・決算書ではありません。仕入れ支払いは在庫購入の資金移動として扱い、売れた商品の原価は販売利益に含まれるため二重計上しません。分割払いの過去月別内訳は現在記録していないため、仕入れ支払いは登録した累計額と最新支払日で表示します。</div>
 </section>
 <section id="tools" class="hidden">
@@ -186,7 +186,7 @@ function save(){
     catch(ignore){dataLoadBlocked=true;alert('保存前のデータを確認できないため、編集内容を保存できません。JSONバックアップを確認してください。');return false}
   }
   try{
-    db.schemaVersion=2;
+    db.schemaVersion=3;
     const serialized=JSON.stringify(db);
     if(previousMain){JSON.parse(previousMain);localStorage.setItem(BACKUP_KEY,previousMain)}
     localStorage.setItem(KEY,serialized);
@@ -273,6 +273,16 @@ async function runOCR(){let file=document.getElementById('ocrFile')?.files?.[0],
 
 function openExpense(){openModal('経費を登録',`<form onsubmit="addExpense(event)"><div class="formgrid"><div><label>支払日 *</label><input name="date" type="date" value="${dateNow()}" required></div><div><label>金額（円） *</label><input name="amount" type="number" min="1" step="1" required></div><div><label>経費カテゴリ *</label><select name="category"><option>広告・販促</option><option>梱包資材</option><option>通信・システム</option><option>交通・出張</option><option>保管・倉庫</option><option>外注・手数料</option><option>備品・消耗品</option><option>その他</option></select></div><div class="span2"><label>内容・メモ</label><input name="memo" maxlength="200" placeholder="例：撮影用ライト、梱包材など"></div></div><div class="notice">仕入れ原価・商品ごとの販売送料・販売手数料は重ねて登録せず、事業運営にかかった別の経費を記録してください。</div><button class="primary full">経費を保存</button></form>`)}
 function addExpense(e){e.preventDefault();const f=Object.fromEntries(new FormData(e.target)),amount=Number(f.amount);if(!/^\d{4}-\d{2}-\d{2}$/.test(f.date||''))return alert('支払日を正しく入力してください。');if(!Number.isFinite(amount)||amount<=0)return alert('金額は1円以上で入力してください。');if(!['広告・販促','梱包資材','通信・システム','交通・出張','保管・倉庫','外注・手数料','備品・消耗品','その他'].includes(f.category))return alert('経費カテゴリを選択してください。');db.expenses.unshift({id:crypto.randomUUID(),date:f.date,amount,category:f.category,memo:String(f.memo||'').trim(),created:Date.now()});if(!save())return;closeModal();renderMonthlyReport()}
+function editExpense(id){
+const e=db.expenses.find(x=>x.id===id);if(!e)return;
+const cats=['広告・販促','梱包資材','通信・システム','交通・出張','保管・倉庫','外注・手数料','備品・消耗品','その他'];
+const opts=cats.map(v=>'<option '+(e.category===v?'selected':'')+'>'+v+'</option>').join('');
+const html='<form onsubmit="updateExpense(event)"><input type="hidden" name="id" value="'+esc(e.id)+'"><div class="formgrid"><div><label>支払日 *</label><input name="date" type="date" value="'+esc(e.date)+'" required></div><div><label>金額（円） *</label><input name="amount" type="number" min="1" step="1" value="'+num(e.amount)+'" required></div><div><label>経費カテゴリ *</label><select name="category">'+opts+'</select></div><div class="span2"><label>内容・メモ</label><input name="memo" maxlength="200" value="'+esc(e.memo||'')+'"></div></div><button class="primary full">変更を保存</button></form>';
+openModal('経費を編集',html);
+}
+function updateExpense(event){event.preventDefault();const f=Object.fromEntries(new FormData(event.target)),e=db.expenses.find(x=>x.id===f.id),amount=Number(f.amount);if(!e)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(f.date||''))return alert('支払日を正しく入力してください。');if(!Number.isFinite(amount)||amount<=0)return alert('金額は1円以上で入力してください。');if(!['広告・販促','梱包資材','通信・システム','交通・出張','保管・倉庫','外注・手数料','備品・消耗品','その他'].includes(f.category))return alert('経費カテゴリを選択してください。');const before=JSON.stringify(db);Object.assign(e,{date:f.date,amount,category:f.category,memo:String(f.memo||'').trim()});if(!save()){db=JSON.parse(before);renderAll();return}closeModal();renderMonthlyReport()}
+function exportExpensesCsv(){const head=['支払日','カテゴリ','金額','メモ'];const rows=db.expenses.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(e=>[e.date,e.category,e.amount,e.memo||'']);const csv='\uFEFF'+[head,...rows].map(row=>row.map(csvCell).join(',')).join('\r\n');downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'expenses-'+dateNow()+'.csv')}
+
 function deleteExpense(id){if(!confirm('この経費記録を削除しますか？'))return;const before=JSON.stringify(db);db.expenses=db.expenses.filter(x=>x.id!==id);if(!save()){db=JSON.parse(before);renderAll();return}renderMonthlyReport()}
 function renderMonthlyReport(){
  const host=document.getElementById('monthlyReport'),list=document.getElementById('expenseList');if(!host||!list)return;
@@ -286,7 +296,7 @@ function renderMonthlyReport(){
  const cards=[['入金済み売上',yen(revenue)],['販売原価',yen(saleCost)],['手数料・送料等',yen(saleCharges)],['販売利益',yen(saleProfit),saleProfit>=0?'green':'red'],['事業経費',yen(expenseTotal)],['経費差引後利益',yen(operatingProfit),operatingProfit>=0?'green':'red'],['未入金売上',yen(unpaid.reduce((a,s)=>a+num(s.price),0))],['取引中売上',yen(trading.reduce((a,s)=>a+num(s.price),0))],['実際の振込入力額',yen(payout)],['仕入れ支払入力額',yen(supplierPaid)],['当月仕入れ総額',yen(purchaseOrderTotal)],['当月仕入れ未払残高',yen(purchaseBalanceTotal)]];
  host.innerHTML='<div class="grid" style="margin-top:12px">'+cards.map(([label,value,cls])=>'<div class="card metric"><div class="label">'+label+'</div><div class="value '+(cls||'')+'">'+value+'</div></div>').join('')+'</div><div class="small muted">対象：'+month+' / 入金済み販売 '+paid.length+'件 / 未入金 '+unpaid.length+'件 / 取引中 '+trading.length+'件</div><div class="notice">利益は販売日が対象月で、入金状況が「入金済み」の販売記録を集計しています。経費は支払日が対象月の記録です。実際の振込入力額は入金日ベース、仕入れ支払入力額は仕入れ記録の最新支払日と累計支払額ベースです。未入力の振込額は実際の入金額に含めません。</div>';
  const rows=expenses.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- list.innerHTML=rows.length?rows.map(e=>'<div class="item"><div class="row"><b>'+esc(e.category)+'</b><b>'+yen(e.amount)+'</b></div><div class="small muted">'+esc(e.date)+' '+esc(e.memo||'')+'</div><div class="actions"><button class="danger" onclick="deleteExpense(\''+e.id+'\')">削除</button></div></div>').join(''):'<div class="empty">この月の経費記録はありません。</div>';
+ list.innerHTML=rows.length?rows.map(e=>'<div class="item"><div class="row"><b>'+esc(e.category)+'</b><b>'+yen(e.amount)+'</b></div><div class="small muted">'+esc(e.date)+' '+esc(e.memo||'')+'</div><div class="actions"><button class="secondary" onclick="editExpense(\''+e.id+'\')">編集</button><button class="danger" onclick="deleteExpense(\''+e.id+'\')">削除</button></div></div>').join(''):'<div class="empty">この月の経費記録はありません。</div>';
 }
 
 function renderAll(){renderHome();renderPurchases();renderStock();renderSales();renderMonthlyReport();loadFeeInputs();renderFx()}
