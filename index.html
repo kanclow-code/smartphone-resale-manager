@@ -161,14 +161,41 @@ function load(){
     return blank();
   }catch(e){dataLoadBlocked=true;setTimeout(()=>alert('保存データまたは自動バックアップを読み込めませんでした。データ保護のため通常の保存・編集を停止しました。ブラウザのデータを消去せず、正しいJSONバックアップを復元してください。'),500);return blank()}
 }
-function save(){if(dataLoadBlocked){alert('保存データの読み込みに問題があるため、編集内容の保存を停止しています。設定・データ管理から正しいJSONバックアップを復元してください。');return false}try{
-  db.schemaVersion=2;
-  const serialized=JSON.stringify(db);
-  try{const previous=localStorage.getItem(KEY);if(previous){JSON.parse(previous);localStorage.setItem(BACKUP_KEY,previous)}}catch(ignore){}
-  localStorage.setItem(KEY,serialized);
-  try{if(!localStorage.getItem(BACKUP_KEY))localStorage.setItem(BACKUP_KEY,serialized)}catch(ignore){}
-  renderAll();return true
-}catch(e){alert('保存できませんでした。端末の空き容量を確認してください。現在の画面を閉じる前に、可能ならJSONバックアップを書き出してください。');return false}}
+function save(){
+  if(dataLoadBlocked){alert('保存データの読み込みに問題があるため、編集内容の保存を停止しています。設定・データ管理から正しいJSONバックアップを復元してください。');return false}
+  const previousMain=localStorage.getItem(KEY);
+  const previousBackup=localStorage.getItem(BACKUP_KEY);
+  let previousData=blank();
+  try{
+    if(previousMain)previousData=normalizeData(JSON.parse(previousMain));
+    else if(previousBackup)previousData=normalizeData(JSON.parse(previousBackup));
+  }catch(e){
+    try{if(previousBackup)previousData=normalizeData(JSON.parse(previousBackup));}
+    catch(ignore){dataLoadBlocked=true;alert('保存前のデータを確認できないため、編集内容を保存できません。JSONバックアップを確認してください。');return false}
+  }
+  try{
+    db.schemaVersion=2;
+    const serialized=JSON.stringify(db);
+    if(previousMain){JSON.parse(previousMain);localStorage.setItem(BACKUP_KEY,previousMain)}
+    localStorage.setItem(KEY,serialized);
+    if(localStorage.getItem(KEY)!==serialized)throw new Error('保存内容を検証できません');
+    if(!localStorage.getItem(BACKUP_KEY)){
+      localStorage.setItem(BACKUP_KEY,serialized);
+      if(localStorage.getItem(BACKUP_KEY)!==serialized)throw new Error('バックアップを検証できません');
+    }
+    renderAll();
+    return true;
+  }catch(e){
+    let rollbackOk=true;
+    try{if(previousMain===null)localStorage.removeItem(KEY);else localStorage.setItem(KEY,previousMain)}catch(ignore){rollbackOk=false}
+    try{if(previousBackup===null)localStorage.removeItem(BACKUP_KEY);else localStorage.setItem(BACKUP_KEY,previousBackup)}catch(ignore){rollbackOk=false}
+    db=previousData;
+    if(!rollbackOk)dataLoadBlocked=true;
+    try{renderAll()}catch(ignore){}
+    alert(rollbackOk?'保存に失敗したため、変更を取り消して直前の保存データに戻しました。端末の空き容量を確認してください。':'保存と元データへの復元を完全に確認できませんでした。データ保護のため編集・保存を停止しました。画面を閉じず、JSONバックアップを保管してください。');
+    return false;
+  }
+}
 function yen(n){return '¥'+Math.round(Number(n)||0).toLocaleString('ja-JP')}
 function num(v){return Number(v)||0}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
