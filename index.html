@@ -1,745 +1,225 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#172554">
-<title>スマホ輸入販売管理</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Alibaba輸入スマホの仕入れ・在庫・販売・利益管理アプリ">
+<link rel="manifest" href="manifest.webmanifest">
+<title>輸入スマホ販売マネージャー</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f1f5f9;color:#172033;font-family:Arial,"Noto Sans JP",sans-serif}
-header{background:#172554;color:white;padding:18px 16px}
-header h1{font-size:21px;margin:0 0 5px}
-header p{font-size:12px;margin:0;color:#cbd5e1}
-main{max-width:760px;margin:auto;padding:12px}
-.card{background:white;border-radius:13px;padding:15px;margin-bottom:13px;box-shadow:0 2px 8px #0000000b}
-h2{font-size:17px;margin:0 0 13px}
-h3{font-size:14px;margin:15px 0 8px;color:#334155}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;font-size:12px;color:#475569;margin:9px 0 4px}
-input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;background:white;color:#172033}
-button{border:0;border-radius:8px;padding:11px 13px;font-size:14px;font-weight:bold;cursor:pointer}
-.primary{background:#1d4ed8;color:white;width:100%;margin-top:14px}
-.secondary{background:#e2e8f0;color:#172033}
-.danger{background:#fee2e2;color:#991b1b}
-.small{font-size:12px;color:#64748b}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{background:#eff6ff;border-radius:10px;padding:12px}
-.stat span{display:block;font-size:11px;color:#475569}
-.stat strong{display:block;font-size:19px;margin-top:5px;overflow-wrap:anywhere}
-
-.product{
-  background:#ffffff;
-  border:1px solid #dbe3ed;
-  border-radius:14px;
-  padding:15px;
-  margin-top:12px;
-  box-shadow:0 2px 6px rgba(15,23,42,0.06);
-}
-
-.product h3{
-  font-size:17px;
-  font-weight:700;
-  margin:0 0 12px;
-  color:#172033;
-  line-height:1.5;
-}
-
-.product p{
-  font-size:13px;
-  line-height:1.8;
-  margin:6px 0;
-  color:#475569;
-  white-space:pre-line;
-}
-
-.profit{
-  font-size:17px;
-  font-weight:800;
-  color:#047857;
-  background:#ecfdf5;
-  border-radius:8px;
-  padding:8px 10px;
-  margin-top:10px;
-  display:inline-block;
-}
-.loss{
-  font-size:17px;
-  font-weight:800;
-  color:#dc2626;
-  background:#fef2f2;
-  border-radius:8px;
-  padding:8px 10px;
-  margin-top:10px;
-  display:inline-block;
-}
-  
-  .status-badge{
-  display:inline-block;
-  padding:5px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-  background:#e0f2fe;
-  color:#0369a1;
-  margin:4px 0 8px;
-  }
-  .status-badge.stock{
-  background:#dbeafe;
-  color:#1d4ed8;
-}
-
-.status-badge.listed{
-  background:#fef3c7;
-  color:#b45309;
-}
-
-.status-badge.sold{
-  background:#dcfce7;
-  color:#15803d;
-}
-  
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.actions button{flex:1}
-hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}
-.hidden{display:none}
-.notice{background:#fffbeb;border:1px solid #fde68a;padding:10px;border-radius:8px;font-size:12px;color:#854d0e;line-height:1.6}
-@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.stat strong{font-size:17px}}
+:root{--bg:#f3f5f8;--card:#fff;--ink:#172033;--muted:#687386;--line:#e4e8ef;--nav:#101827;--accent:#3768e5;--green:#13845b;--red:#c44747;--amber:#a96a09}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Noto Sans JP",sans-serif}
+header{background:var(--nav);color:#fff;padding:18px 16px 16px;position:sticky;top:0;z-index:5}header .top{display:flex;justify-content:space-between;align-items:center;gap:10px}header h1{font-size:17px;margin:0;font-weight:750}header small{color:#b9c4d5;font-size:11px}
+main{max-width:760px;margin:auto;padding:14px 13px 100px}.tabs{display:flex;gap:7px;overflow:auto;padding:11px 13px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:65px;z-index:4}
+.tabs button{white-space:nowrap;border:0;background:#edf1f7;color:#43506a;padding:9px 13px;border-radius:999px;font-weight:650}.tabs button.active{background:var(--accent);color:#fff}
+h2{font-size:19px;margin:8px 0 12px}.muted{color:var(--muted)}.small{font-size:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:11px;box-shadow:0 2px 8px #16243a08}.metric .label{font-size:12px;color:var(--muted)}.metric .value{font-size:22px;font-weight:800;margin-top:3px;overflow-wrap:anywhere}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+button,.btn{cursor:pointer}.primary{background:var(--accent);color:#fff;border:0;border-radius:11px;padding:11px 14px;font-weight:700}.secondary{background:#eef2f8;color:#26334a;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-weight:650}.danger{background:#fff0f0;color:#a83232;border:1px solid #f3d0d0;border-radius:10px;padding:8px 10px}.full{width:100%}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+label{display:block;font-size:12px;color:#536078;font-weight:650;margin:10px 0 5px}input,select,textarea{width:100%;border:1px solid #d7deea;border-radius:10px;padding:11px 10px;background:#fff;color:var(--ink);font:inherit;min-height:43px}input:focus,select:focus,textarea:focus{outline:2px solid #b9caff;border-color:var(--accent)}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.span2{grid-column:1/-1}
+.item{border-top:1px solid var(--line);padding:12px 0}.item:first-child{border-top:0}.pill{font-size:11px;padding:4px 8px;border-radius:30px;background:#edf1f7;color:#46536b;white-space:nowrap}.pill.ok{background:#e5f5ee;color:#08734d}.pill.warn{background:#fff3dc;color:#895600}.pill.bad{background:#ffebeb;color:#a83232}
+.empty{text-align:center;color:var(--muted);padding:25px 10px}.notice{background:#fff8e9;border:1px solid #f0dfb9;padding:12px;border-radius:12px;font-size:12px;color:#74500d;margin:10px 0}
+.hidden{display:none!important}.modal{position:fixed;inset:0;background:#0b1425a8;z-index:20;display:flex;align-items:flex-end;justify-content:center}.sheet{background:#f7f8fb;width:100%;max-width:760px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:17px 15px 28px}.sheet h3{margin:0 0 8px}.close{border:0;background:#e9edf4;border-radius:50%;width:34px;height:34px;font-size:20px}
+footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
+@media(min-width:600px){.modal{align-items:center;padding:20px}.sheet{border-radius:20px}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
-<header>
-<h1>スマホ輸入販売管理</h1>
-<p>仕入れ・輸入費用・在庫・販売利益をまとめて管理</p>
-</header>
-
+<header><div class="top"><div><h1>📱 輸入スマホ販売マネージャー</h1><small>仕入れ・在庫・販売・利益をひとまとめ</small></div><span style="font-size:11px;color:#b9c4d5">PWA 1.2</span></div></header>
+<nav class="tabs" id="tabs">
+<button class="active" data-tab="home">ホーム</button><button data-tab="buy">仕入れ</button><button data-tab="stock">在庫</button><button data-tab="sales">販売</button><button data-tab="tools">設定・出力</button>
+</nav>
 <main>
-<section class="card">
-<h2>📊 販売状況</h2>
-<div class="stats">
-<div class="stat"><span>在庫・出品中</span><strong id="stockCount">0台</strong></div>
-<div class="stat"><span>販売済み</span><strong id="soldCount">0台</strong></div>
-<div class="stat"><span>販売済み利益合計</span><strong id="totalProfit">¥0</strong></div>
-<div class="stat"><span>販売済み売上合計</span><strong id="totalSales">¥0</strong></div>
+<section id="home">
+<h2>事業ダッシュボード</h2>
+<div class="grid">
+<div class="card metric"><div class="label">販売済み利益（累計）</div><div class="value green" id="mProfit">¥0</div></div>
+<div class="card metric"><div class="label">在庫台数</div><div class="value" id="mStock">0台</div></div>
+<div class="card metric"><div class="label">販売済み台数</div><div class="value" id="mSold">0台</div></div>
+<div class="card metric"><div class="label">在庫原価合計</div><div class="value" id="mCost">¥0</div></div>
+<div class="card metric"><div class="label">販売総額（キャンセル除外）</div><div class="value" id="mRevenue">¥0</div></div>
+<div class="card metric"><div class="label">平均利益（1台）</div><div class="value" id="mAvgProfit">¥0</div></div>
+</div>
+<div class="card"><div class="row"><b>最近の動き</b><span class="small muted">最新5件</span></div><div id="recent"></div></div>
+<div class="card"><div class="row"><b>月別利益の推移</b><button class="secondary" onclick="exportSalesCsv()">販売CSVを書き出す</button></div><div class="small muted">販売日ベース・キャンセルを除外</div><canvas id="profitChart" height="190" style="width:100%;height:190px"></canvas><div id="chartSummary" class="small muted"></div></div>
+<div class="notice">重要：ここに表示される利益は登録した原価・手数料・送料等に基づく管理上の概算です。税務上の所得・消費税納税額とは異なります。</div>
+</section>
+<section id="buy" class="hidden">
+<div class="row"><h2>仕入れ管理</h2><button class="primary" onclick="openPurchase()">＋ 仕入れ登録</button></div>
+<div class="card"><div class="small muted">Alibabaの注文・支払い・輸入費用を記録します。登録すると在庫商品を台数分作成します。</div><div id="purchases"></div></div>
+</section>
+<section id="stock" class="hidden">
+<div class="row"><h2>在庫管理</h2><span class="pill" id="stockCount">0台</span></div>
+<div class="card"><input id="stockSearch" placeholder="機種・IMEI・注文番号で検索" oninput="renderStock()"><div id="stocks"></div></div>
+</section>
+<section id="sales" class="hidden">
+<div class="row"><h2>販売管理</h2><button class="primary" onclick="openSale()">＋ 販売登録</button></div>
+<div class="card"><div class="small muted">販売先ごとの売価・手数料・送料を記録し、商品ごとの利益を計算します。キャンセル履歴も残ります。</div><div class="formgrid"><div><label>販売先で絞り込み</label><select id="salesPlatformFilter" onchange="renderSales()"><option value="">すべて</option><option value="mercari">メルカリ</option><option value="paypay">PayPayフリマ</option><option value="yahoo">ヤフオク</option><option value="rakuma">楽天ラクマ</option></select></div><div><label>状態で絞り込み</label><select id="salesStatusFilter" onchange="renderSales()"><option value="">すべて</option><option>入金済み</option><option>未入金</option><option>取引中</option><option>キャンセル</option></select></div></div><div id="salesList"></div></div>
+</section>
+<section id="tools" class="hidden">
+<h2>設定・データ管理</h2>
+<div class="card">
+<b>販売手数料の初期値</b>
+<div class="small muted">実際の手数料率は出品時点の各サービス規約・条件を確認して入力してください。</div>
+<div class="formgrid">
+<div><label>メルカリ（%）</label><input id="feeMercari" type="number" step=".1" value="10"></div>
+<div><label>PayPayフリマ（%）</label><input id="feePaypay" type="number" step=".1" value="5"></div>
+<div><label>ヤフオク（%）</label><input id="feeYahoo" type="number" step=".1" value="10"></div>
+<div><label>楽天ラクマ（%）</label><input id="feeRakuma" type="number" step=".1" value="10"></div>
+</div><button class="primary full" onclick="saveFees()">手数料設定を保存</button>
+</div>
+<div class="card">
+<b>書類読み取り（OCR）</b><p class="small muted">Alibabaの請求書・注文書を撮影または画像選択すると文字を抽出します。読み取り結果は必ず原本と照合し、必要な項目を手入力してください。</p><input id="ocrFile" type="file" accept="image/*" capture="environment"><div class="actions"><button class="primary" onclick="runOCR()">画像から文字を読み取る</button></div><div id="ocrStatus" class="small muted"></div><textarea id="ocrResult" rows="7" placeholder="読み取り結果がここに表示されます"></textarea></div>
+<div class="card">
+<b>為替レート（USD/JPY）</b><p class="small muted">外部レートを取得します。実際のカード請求額・Alibaba決済レート・銀行手数料とは異なる場合があります。</p><div class="row"><strong id="fxDisplay">未取得</strong><button class="secondary" onclick="fetchFx()">最新レートを取得</button></div><div id="fxUpdated" class="small muted"></div></div>
+<div class="card">
+<b>バックアップ・復元</b><p class="small muted">データはこのブラウザ内に保存されます。機種変更・ブラウザのデータ消去に備え、定期的にバックアップしてください。</p>
+<div class="actions"><button class="primary" onclick="exportData()">バックアップを書き出す</button><button class="secondary" onclick="document.getElementById('importFile').click()">バックアップを復元</button><input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)"></div>
+</div>
+<div class="card">
+<b>事業開始前・販売前チェック</b>
+<ul class="small">
+<li>無線機器の技術基準適合（技適）を正確な型番単位で確認</li>
+<li>同梱ACアダプター等のPSE対象・表示・輸入事業者の義務を確認</li>
+<li>輸入申告、関税・輸入消費税、帳簿・証憑を整理</li>
+<li>各フリマサービスの事業利用・出品ルールを確認</li>
+<li>IMEI・シリアル番号は個人情報と同様に慎重に管理</li>
+</ul>
+<div class="notice">アプリのチェック欄は法令適合を保証しません。適用法令・届出・検査の要否は商品構成と輸入形態により異なります。</div>
+</div>
+<div class="card">
+<b>データをすべて削除</b><p class="small muted">復元できません。先にバックアップしてください。</p><button class="danger" onclick="clearAll()">全データ削除</button>
 </div>
 </section>
-
-<section class="card">
-<h2>💳 支払い管理</h2>
-<div class="stats">
-<div class="stat">
-<span>支払い済み</span>
-<strong id="paidCount">0件</strong>
-</div>
-<div class="stat">
-<span>未払い</span>
-<strong id="unpaidCount">0件</strong>
-</div>
-<div class="stat">
-<span>確認中</span>
-<strong id="checkingCount">0件</strong>
-</div>
-<div class="stat">
-<span>ペイジー支払額合計</span>
-<strong id="payeasyTotal">¥0</strong>
-</div>
-</div>
-<hr>
-<h3>未払い・確認中の注文</h3>
-<div id="paymentList">
-<p class="small">未払い・確認中の注文はありません。</p>
-</div>
-</section>
-
-<section class="card">
-<h2 id="formTitle">📦 商品を登録</h2>
-<form id="productForm">
-<input type="hidden" id="editId">
-
-<h3>商品情報</h3>
-<label>商品名・機種名</label>
-<input id="name" required placeholder="例：Xiaomi 18 Pro Max">
-
-<div class="grid">
-<div>
-<label>仕入れ通貨</label>
-<select id="currency">
-<option value="USD">USD（米ドル）</option>
-<option value="JPY">JPY（日本円）</option>
-</select>
-</div>
-<div>
-<label>仕入れ金額</label>
-<input id="cost" type="number" min="0" step="0.01" required placeholder="例：850">
-</div>
-</div>
-
-<div class="grid">
-<div>
-<label>為替レート（1 USD = 円）</label>
-<input id="rate" type="number" min="0" step="0.01" value="155">
-</div>
-<div>
-<label>ペイジー表示の支払額（円）</label>
-<input id="payeasy" type="number" min="0" step="1" placeholder="例：132000">
-</div>
-</div>
-<p class="small">ペイジーの円建て支払額が分かる場合は入力してください。入力した場合は、その金額を仕入れ決済額として優先します。</p>
-
-<h3>Alibaba・支払い情報</h3>
-<div class="grid">
-<div>
-<label>Alibaba注文番号</label>
-<input id="orderNo" placeholder="注文番号">
-</div>
-<div>
-<label>支払日</label>
-<input id="paidDate" type="date">
-</div>
-</div>
-<label>支払い状況</label>
-<select id="paymentStatus">
-<option>未払い</option>
-<option>支払い済み</option>
-<option>確認中</option>
-<option>返金・キャンセル</option>
-</select>
-
-<h3>輸入・仕入れ関連費用（円）</h3>
-<div class="grid">
-<div>
-<label>別途銀行手数料</label>
-<input id="bankFee" type="number" min="0" value="0">
-</div>
-<div>
-<label>国際送料</label>
-<input id="international" type="number" min="0" value="0">
-</div>
-<div>
-<label>関税</label>
-<input id="duty" type="number" min="0" value="0">
-</div>
-<div>
-<label>輸入消費税</label>
-<input id="importTax" type="number" min="0" value="0">
-</div>
-<div>
-<label>その他輸入費用</label>
-<input id="other" type="number" min="0" value="0">
-</div>
-</div>
-<p class="small">ペイジー支払額に含まれている費用は、ここへ重複入力しないでください。銀行手数料も別途請求された場合だけ入力します。</p>
-
-<hr>
-<h3>販売情報</h3>
-<div class="grid">
-<div>
-<label>販売予定価格（円）</label>
-<input id="price" type="number" min="0" required placeholder="例：145000">
-</div>
-<div>
-<label>販売先</label>
-<select id="site">
-<option>メルカリ</option>
-<option>Yahoo!フリマ</option>
-<option>ヤフオク</option>
-<option>楽天ラクマ</option>
-<option>その他</option>
-</select>
-</div>
-<div>
-<label>販売手数料（％）</label>
-<input id="fee" type="number" min="0" max="100" step="0.1" value="10">
-</div>
-<div>
-<label>国内送料（円）</label>
-<input id="shipping" type="number" min="0" value="750">
-</div>
-</div>
-<label>販売状況</label>
-<select id="status">
-<option>在庫</option>
-<option>出品中</option>
-<option>販売済み</option>
-</select>
-<label>実際の販売価格（販売済みの場合）</label>
-<input id="actualPrice" type="number" min="0" placeholder="実際に売れた金額">
-
-<label>実際の販売日</label>
-<input id="soldDate" type="date">
-
-<div class="notice" style="margin-top:13px">
-<strong>利益の計算について</strong><br>
-仕入れ決済額 ＋ 輸入費用 ＋ 国内送料 ＋ 販売手数料を使って計算します。販売手数料率は各サービスの条件に合わせて確認・変更してください。
-</div>
-
-<div class="card" style="background:#f8fafc;margin-top:13px;margin-bottom:0">
-<strong>現在の概算利益</strong>
-<div id="preview" style="font-size:24px;font-weight:bold;margin-top:7px">¥0</div>
-<p id="costPreview" class="small">仕入れ・輸入費用の合計：¥0</p>
-</div>
-
-<button class="primary" type="submit" id="saveButton">商品を登録する</button>
-<button class="secondary hidden" type="button" id="cancelEdit" style="width:100%;margin-top:8px">編集をキャンセル</button>
-</form>
-</section>
-
-<section class="card">
-<h2>📅 月別販売実績</h2>
-<label>集計する月</label>
-<input type="month" id="reportMonth">
-<div class="stats" style="margin-top:12px">
-<div class="stat">
-<span>販売台数</span>
-<strong id="monthCount">0台</strong>
-</div>
-<div class="stat">
-<span>売上合計</span>
-<strong id="monthSales">¥0</strong>
-</div>
-<div class="stat">
-<span>利益合計</span>
-<strong id="monthProfit">¥0</strong>
-</div>
-<div class="stat">
-<span>平均利益</span>
-<strong id="averageProfit">¥0</strong>
-</div>
-</div>
-<hr>
-<h3>販売先別売上</h3>
-<div id="siteReport"></div>
-</section>
-
-<section class="card">
-<h2>📱 商品一覧</h2>
-<label>表示する商品</label>
-<select id="filter">
-<option value="all">すべて</option>
-<option value="在庫">在庫</option>
-<option value="出品中">出品中</option>
-<option value="販売済み">販売済み</option>
-</select>
-<div id="productList"></div>
-</section>
-
-<section class="card">
-<h2>💾 データのバックアップ</h2>
-<p class="small">登録した商品データをファイルとして保存できます。機種変更やブラウザのデータ消去に備えて、定期的に保存してください。</p>
-<div class="grid">
-<button class="secondary" type="button" id="exportBtn">バックアップ保存</button>
-<button class="secondary" type="button" id="importBtn">バックアップ復元</button>
-</div>
-<input id="importFile" type="file" accept=".json,application/json" class="hidden">
-</section>
+<footer>データは端末内のブラウザに保存されます。クラウド同期・自動連携は未実装です。</footer>
 </main>
-
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="row"><h3 id="modalTitle"></h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
 <script>
-const $ = id => document.getElementById(id);
-const yen = n => "¥" + Math.round(Number(n)||0).toLocaleString("ja-JP");
-let products = JSON.parse(localStorage.getItem("products") || "[]");
-
-function normalize(p){
-  const old = p.cost !== undefined;
-  return {
-    id: p.id || ("p" + Date.now() + Math.random().toString(16).slice(2)),
-    name: p.name || "",
-    currency: p.currency || "JPY",
-    cost: Number(p.cost)||0,
-    rate: Number(p.rate)||155,
-    payeasy: Number(p.payeasy)||0,
-    orderNo: p.orderNo || "",
-    paidDate: p.paidDate || "",
-    paymentStatus: p.paymentStatus || "未払い",
-    bankFee: Number(p.bankFee)||0,
-    international: Number(p.international)||0,
-    duty: Number(p.duty)||0,
-    importTax: Number(p.importTax)||0,
-    other: Number(p.other !== undefined ? p.other : (p.extra||0)),
-    price: Number(p.price)||0,
-    site: p.site || "メルカリ",
-    fee: Number(p.fee !== undefined ? p.fee : 10),
-    shipping: Number(p.shipping)||0,
-    status: p.status === "販売済" ? "販売済み" : (p.status || "在庫"),
-    actualPrice: Number(p.actualPrice)||0,
-soldDate: p.soldDate || ""
-  };
-}
-products = products.map(normalize);
-
-function saveData(){
-  localStorage.setItem("products",JSON.stringify(products));
-}
-
-function purchaseJPY(p){
-  if(Number(p.payeasy)>0) return Number(p.payeasy);
-  if(p.currency==="USD") return Number(p.cost)*Number(p.rate);
-  return Number(p.cost);
-}
-function landedCost(p){
-  return purchaseJPY(p)+Number(p.bankFee)+Number(p.international)+Number(p.duty)+Number(p.importTax)+Number(p.other);
-}
-function profit(p){
-  const sale = p.status==="販売済み" && p.actualPrice>0 ? p.actualPrice : p.price;
-  return sale-sale*(p.fee/100)-p.shipping-landedCost(p);
-}
-function moneyInput(id){return Number($(id).value)||0;}
-
-function updatePreview(){
-  const currency=$("currency").value;
-  const cost=moneyInput("cost");
-  const rate=moneyInput("rate");
-  const payeasy=moneyInput("payeasy");
-  const base=payeasy>0?payeasy:(currency==="USD"?cost*rate:cost);
-  const extra=moneyInput("bankFee")+moneyInput("international")+moneyInput("duty")+moneyInput("importTax")+moneyInput("other");
-  const total=base+extra;
-  const sale=moneyInput("price");
-  const estimate=sale-sale*moneyInput("fee")/100-moneyInput("shipping")-total;
-  $("preview").textContent=yen(estimate);
-  $("preview").style.color=estimate>=0?"#047857":"#b91c1c";
-  $("costPreview").textContent="仕入れ・輸入費用の合計："+yen(total);
-}
-
-
-function renderPayments(){
-  const paid = products.filter(p=>p.paymentStatus==="支払い済み");
-  const unpaid = products.filter(p=>p.paymentStatus==="未払い");
-  const checking = products.filter(p=>p.paymentStatus==="確認中");
-
-  $("paidCount").textContent=paid.length+"件";
-  $("unpaidCount").textContent=unpaid.length+"件";
-  $("checkingCount").textContent=checking.length+"件";
-
-  const total=payedTotal();
-  $("payeasyTotal").textContent=yen(total);
-
-  const list=$("paymentList");
-  list.innerHTML="";
-
-  const pending=[...unpaid,...checking];
-
-  if(!pending.length){
-    list.textContent="未払い・確認中の注文はありません。";
-    return;
-  }
-
-  pending.forEach(p=>{
-    const item=document.createElement("div");
-    item.className="product";
-
-    const title=document.createElement("strong");
-    title.textContent=p.name;
-
-    const detail=document.createElement("p");
-    detail.textContent=
-      "注文番号："+(p.orderNo||"未登録")+
-      " ／ 状況："+p.paymentStatus+
-      " ／ 支払日："+(p.paidDate||"未登録");
-
-    const amount=document.createElement("p");
-    amount.textContent="ペイジー支払額："+yen(p.payeasy);
-
-    item.append(title,detail,amount);
-    list.appendChild(item);
-  });
-}
-
-function payedTotal(){
-  return products.reduce((sum,p)=>sum+(Number(p.payeasy)||0),0);
-}
-
-
-function renderMonthly(){
-  const monthInput=$("reportMonth");
-
-  if(!monthInput.value){
-    const now=new Date();
-    monthInput.value=
-      now.getFullYear()+"-"+
-      String(now.getMonth()+1).padStart(2,"0");
-  }
-
-  const month=monthInput.value;
-
-  const sold=products.filter(p=>
-    p.status==="販売済み" &&
-    p.soldDate &&
-    p.soldDate.slice(0,7)===month
-  );
-
-  const sales=sold.reduce(
-    (sum,p)=>sum+(p.actualPrice||p.price),0
-  );
-
-  const profits=sold.reduce(
-    (sum,p)=>sum+profit(p),0
-  );
-
-  $("monthCount").textContent=sold.length+"台";
-  $("monthSales").textContent=yen(sales);
-  $("monthProfit").textContent=yen(profits);
-  $("averageProfit").textContent=
-    yen(sold.length?profits/sold.length:0);
-
-  const report=$("siteReport");
-  report.innerHTML="";
-
-  if(!sold.length){
-    report.textContent="この月の販売実績はありません。";
-    return;
-  }
-
-  const sites={};
-
-  sold.forEach(p=>{
-    if(!sites[p.site]){
-      sites[p.site]={count:0,sales:0,profit:0};
+const KEY='phone_import_manager_v1';
+const LEGACY_KEY='products';
+let migrationCount=0;
+let db=load();
+function blank(){return {schemaVersion:2,purchases:[],items:[],sales:[],fees:{mercari:10,paypay:5,yahoo:10,rakuma:10}}}
+function normalizeData(x){let b=blank();if(!x||typeof x!=='object')return b;return {...b,...x,purchases:Array.isArray(x.purchases)?x.purchases:[],items:Array.isArray(x.items)?x.items:[],sales:Array.isArray(x.sales)?x.sales:[],fees:{...b.fees,...(x.fees||{})},schemaVersion:2}}
+function migrateLegacyProducts(rows){
+  const out=blank();
+  const siteMap={'メルカリ':'mercari','Yahoo!フリマ':'paypay','ヤフオク':'yahoo','楽天ラクマ':'rakuma','その他':'other'};
+  (Array.isArray(rows)?rows:[]).forEach((raw,index)=>{
+    const p=raw&&typeof raw==='object'?raw:{};
+    const id=String(p.id||('legacy-'+index));
+    const purchaseId='legacy-purchase-'+id;
+    const itemId='legacy-item-'+id;
+    const rate=num(p.rate)||155;
+    const base=num(p.payeasy)>0?num(p.payeasy):(p.currency==='USD'?num(p.cost)*rate:num(p.cost));
+    const extras=num(p.bankFee)+num(p.international)+num(p.duty)+num(p.importTax)+num(p.other);
+    const landed=base+extras;
+    const paidMap={'支払い済み':'支払済み','未払い':'未払い','確認中':'確認中','返金・キャンセル':'返金・キャンセル'};
+    const purchase={id:purchaseId,model:String(p.name||'旧データ商品'),seller:'',orderNo:String(p.orderNo||''),invoiceNo:'',date:String(p.paidDate||''),qty:1,unitUsd:p.currency==='USD'?num(p.cost):(rate?num(p.cost)/rate:0),fx:rate,shipping:num(p.international),tax:num(p.duty)+num(p.importTax),other:num(p.bankFee)+num(p.other),total:landed,unitCost:landed,paid:paidMap[p.paymentStatus]||'未払い',created:Date.now(),legacy:true};
+    const sold=p.status==='販売済み'||p.status==='販売済';
+    const item={id:itemId,purchaseId,model:String(p.name||'旧データ商品'),imei:'',serial:'',color:'',storage:'',condition:'未登録',status:sold?'販売済み':'在庫',compliance:'未確認',memo:p.status==='出品中'?'旧アプリから移行（旧状態：出品中）':'旧アプリから移行'};
+    out.purchases.push(purchase);out.items.push(item);
+    if(sold){
+      const price=num(p.actualPrice)>0?num(p.actualPrice):num(p.price);
+      const feeRate=num(p.fee);
+      const fee=price*feeRate/100;
+      const shipping=num(p.shipping);
+      const saleDate=String(p.soldDate||'');
+      const platform=siteMap[p.site]||'other';
+      const sale={id:'legacy-sale-'+id,itemId,date:saleDate,platform,payment:'取引中',price,cost:landed,fee,feeRate,shipping,other:0,profit:price-fee-shipping-landed,memo:'旧アプリから移行。入金状況は要確認',created:saleDate?new Date(saleDate+'T12:00:00').getTime():Date.now(),legacy:true};
+      out.sales.push(sale);item.saleId=sale.id;
     }
-
-    sites[p.site].count++;
-    sites[p.site].sales+=p.actualPrice||p.price;
-    sites[p.site].profit+=profit(p);
   });
-
-  Object.entries(sites).forEach(([name,data])=>{
-    const item=document.createElement("div");
-    item.className="product";
-
-    const title=document.createElement("strong");
-    title.textContent=name;
-
-    const detail=document.createElement("p");
-    detail.textContent=
-      "販売台数："+data.count+"台"+
-      " ／ 売上："+yen(data.sales)+
-      " ／ 利益："+yen(data.profit);
-
-    item.append(title,detail);
-    report.appendChild(item);
-  });
+  return out;
 }
-
-function render(){
-  renderPayments();
-  renderMonthly();
-  const stock=products.filter(p=>p.status!=="販売済み").length;
-  const sold=products.filter(p=>p.status==="販売済み");
-  $("stockCount").textContent=stock+"台";
-  $("soldCount").textContent=sold.length+"台";
-  $("totalProfit").textContent=yen(sold.reduce((s,p)=>s+profit(p),0));
-  $("totalSales").textContent=yen(sold.reduce((s,p)=>s+(p.actualPrice||p.price),0));
-
-  const filter=$("filter").value;
-  const list=products.filter(p=>filter==="all"||p.status===filter);
-  $("productList").innerHTML="";
-  if(!list.length){
-    $("productList").innerHTML='<p class="small">登録商品はありません。</p>';
-    return;
-  }
-  list.forEach(p=>{
-    const el=document.createElement("div");
-    el.className="product";
-    const actual=p.status==="販売済み"&&p.actualPrice>0?p.actualPrice:p.price;
-    const fee=actual*p.fee/100;
-    const currentProfit=profit(p);
-const profitElementClass=currentProfit>=0?"profit":"loss";
-    el.innerHTML=`
-     <h3></h3>
-<p class="status-badge"></p>
-<p class="small"></p>
-      <p>仕入れ決済額：<strong></strong><br>
-      輸入費用込み：<strong></strong><br>
-      販売価格：<strong></strong><br>
-      販売手数料：<strong></strong><br>
-      利益見込み・実績：<strong class="${profitElementClass}"></strong></p>
-      <p class="small"></p>
-      <div class="actions">
-        <button class="secondary edit">編集</button>
-        <button class="secondary sold"></button>
-        <button class="danger delete">削除</button>
-      </div>`;
-const statusBadge=el.querySelector(".status-badge");
-statusBadge.textContent=p.status;
-statusBadge.classList.add(
-  p.status==="販売済み"?"sold":
-  p.status==="出品中"?"listed":"stock"
-);
-    el.querySelector("h3").textContent=p.name;
-    el.querySelectorAll("p")[1].textContent=p.status+" ／ "+p.site;
-    const strong=el.querySelectorAll("strong");
-    strong[0].textContent=yen(purchaseJPY(p));
-    strong[1].textContent=yen(landedCost(p));
-    strong[2].textContent=yen(actual);
-    strong[3].textContent=yen(fee);
-    strong[4].textContent=yen(profit(p));
-    const convertedCost = p.currency === "USD"
-  ? p.cost * p.rate
-  : p.cost;
-
-const difference = p.payeasy > 0
-  ? p.payeasy - convertedCost
-  : 0;
-
-
-el.querySelectorAll("p")[2].textContent =
-  "注文番号：" + (p.orderNo || "未登録") +
-  " ／ 支払い：" + p.paymentStatus +
-  "\n支払日：" + (p.paidDate || "未登録") +
-  "\n販売日：" + (p.soldDate || "未登録") +
-  "\nUSD換算額：" + yen(convertedCost) +
-  "\nペイジーとの差額：" +
-  (p.payeasy > 0 ? yen(difference) : "未入力");
-
-    el.querySelector(".edit").onclick=()=>editProduct(p.id);
-    el.querySelector(".sold").textContent=p.status==="販売済み"?"在庫に戻す":"販売済みにする";
-    el.querySelector(".sold").onclick=()=>{
-      if(p.status==="販売済み"){
-  p.status="在庫";
-  p.actualPrice=0;
-  p.soldDate="";
-      }
-      else{
-        const value=prompt("実際の販売価格を入力してください",String(p.price));
-        if(value===null)return;
-        if(Number(value)<=0){alert("販売価格を入力してください");return;}
-        p.actualPrice=Number(value);
-p.status="販売済み";
-
-const today=new Date();
-p.soldDate=
-  today.getFullYear()+"-"+
-  String(today.getMonth()+1).padStart(2,"0")+"-"+
-  String(today.getDate()).padStart(2,"0");
-      }
-      saveData();render();
-    };
-    el.querySelector(".delete").onclick=()=>{
-      if(confirm("この商品を削除しますか？")){
-        products=products.filter(x=>x.id!==p.id);
-        saveData();render();
-      }
-    };
-    $("productList").appendChild(el);
-  });
-}
-
-function resetForm(){
-  $("productForm").reset();
-  $("editId").value="";
-  $("rate").value=155;
-  $("bankFee").value=0;
-  $("international").value=0;
-  $("duty").value=0;
-  $("importTax").value=0;
-  $("other").value=0;
-  $("shipping").value=750;
-  $("fee").value=10;
-  $("paymentStatus").value="未払い";
-  $("status").value="在庫";
-  $("formTitle").textContent="📦 商品を登録";
-  $("saveButton").textContent="商品を登録する";
-  $("cancelEdit").classList.add("hidden");
-  updatePreview();
-}
-
-function editProduct(id){
-  const p=products.find(x=>x.id===id);
-  if(!p)return;
-  $("editId").value=p.id;
-  $("name").value=p.name;
-  $("currency").value=p.currency;
-  $("cost").value=p.cost;
-  $("rate").value=p.rate;
-  $("payeasy").value=p.payeasy||"";
-  $("orderNo").value=p.orderNo;
-  $("paidDate").value=p.paidDate;
-  $("paymentStatus").value=p.paymentStatus;
-  $("bankFee").value=p.bankFee;
-  $("international").value=p.international;
-  $("duty").value=p.duty;
-  $("importTax").value=p.importTax;
-  $("other").value=p.other;
-  $("price").value=p.price;
-  $("site").value=p.site;
-  $("fee").value=p.fee;
-  $("shipping").value=p.shipping;
-  $("status").value=p.status;
-  $("actualPrice").value=p.actualPrice||"";
-  $("soldDate").value=p.soldDate||"";
-  $("formTitle").textContent="✏️ 商品を編集";
-  $("saveButton").textContent="変更を保存する";
-  $("cancelEdit").classList.remove("hidden");
-  updatePreview();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-$("productForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const id=$("editId").value;
-  const p={
-    id:id||("p"+Date.now()+Math.random().toString(16).slice(2)),
-    name:$("name").value.trim(),
-    currency:$("currency").value,
-    cost:moneyInput("cost"),
-    rate:moneyInput("rate"),
-    payeasy:moneyInput("payeasy"),
-    orderNo:$("orderNo").value.trim(),
-    paidDate:$("paidDate").value,
-    paymentStatus:$("paymentStatus").value,
-    bankFee:moneyInput("bankFee"),
-    international:moneyInput("international"),
-    duty:moneyInput("duty"),
-    importTax:moneyInput("importTax"),
-    other:moneyInput("other"),
-    price:moneyInput("price"),
-    site:$("site").value,
-    fee:moneyInput("fee"),
-    shipping:moneyInput("shipping"),
-    status:$("status").value,
-    actualPrice:moneyInput("actualPrice"),
-soldDate:$("soldDate").value
-  };
-  if(p.currency==="USD"&&p.rate<=0){alert("為替レートを入力してください");return;}
-  if(id){
-    const index=products.findIndex(x=>x.id===id);
-    if(index>=0)products[index]=p;
-  }else products.unshift(p);
-  saveData();resetForm();render();
-  alert("保存しました。");
-});
-
-$("cancelEdit").onclick=resetForm;
-$("filter").onchange=render;
-  $("reportMonth").onchange=renderMonthly;
-["currency","cost","rate","payeasy","bankFee","international","duty","importTax","other","price","fee","shipping"].forEach(id=>{
-  $(id).addEventListener("input",updatePreview);
-  $(id).addEventListener("change",updatePreview);
-});
-
-$("exportBtn").onclick=()=>{
-  const blob=new Blob([JSON.stringify(products,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download="smartphone-resale-backup.json";a.click();
-  URL.revokeObjectURL(url);
-};
-$("importBtn").onclick=()=>$("importFile").click();
-$("importFile").onchange=async e=>{
-  const file=e.target.files[0];
-  if(!file)return;
+function load(){
   try{
-    const data=JSON.parse(await file.text());
-    if(!Array.isArray(data))throw new Error();
-    if(!confirm("現在の商品データをバックアップ内容で置き換えます。よろしいですか？"))return;
-    products=data.map(normalize);
-    saveData();render();alert("復元しました。");
-  }catch(err){alert("ファイルを読み込めませんでした。正しいバックアップファイルを選んでください。");}
-  e.target.value="";
-};
-
-render();
-updatePreview();
+    const current=localStorage.getItem(KEY);
+    if(current)return normalizeData(JSON.parse(current));
+    const legacy=localStorage.getItem(LEGACY_KEY);
+    if(legacy){const rows=JSON.parse(legacy);if(Array.isArray(rows)){const migrated=migrateLegacyProducts(rows);migrationCount=rows.length;try{localStorage.setItem(KEY,JSON.stringify(migrated))}catch(e){setTimeout(()=>alert('旧データを読み込みましたが、新形式での保存に失敗しました。端末容量を確保してJSONバックアップを保存してください。'),500)}return migrated}}
+    return blank();
+  }catch(e){return blank()}
+}
+function save(){try{db.schemaVersion=2;localStorage.setItem(KEY,JSON.stringify(db));renderAll()}catch(e){alert('保存できませんでした。端末の空き容量を確認し、先にバックアップを書き出してください。')}}
+function yen(n){return '¥'+Math.round(Number(n)||0).toLocaleString('ja-JP')}
+function num(v){return Number(v)||0}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function dateNow(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function tab(name){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));['home','buy','stock','sales','tools'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==name));}
+document.getElementById('tabs').addEventListener('click',e=>{if(e.target.dataset.tab)tab(e.target.dataset.tab)});
+function openModal(title,html){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=html;document.getElementById('modal').classList.remove('hidden')}
+function closeModal(){document.getElementById('modal').classList.add('hidden')}
+function openPurchase(){openModal('Alibaba仕入れを登録',`
+<form onsubmit="addPurchase(event)">
+<div class="formgrid">
+<div class="span2"><label>商品・機種名 *</label><input name="model" required placeholder="例：Xiaomi 18 Pro Max"></div>
+<div><label>販売者・店舗名</label><input name="seller" placeholder="Alibaba販売者名"></div>
+<div><label>注文日</label><input name="date" type="date" value="${dateNow()}"></div>
+<div><label>注文番号</label><input name="orderNo"></div>
+<div><label>請求番号</label><input name="invoiceNo"></div>
+<div><label>仕入れ台数 *</label><input name="qty" type="number" min="1" value="1" required></div>
+<div><label>1台あたり商品価格（USD） *</label><input name="unitUsd" type="number" step=".01" min="0" required></div>
+<div><label>為替レート（円/USD） *</label><input name="fx" type="number" step=".01" value="${db.fxRate||155}" required><button type="button" class="secondary" onclick="fillPurchaseFx()">最新レートを反映</button></div>
+<div><label>国際送料（円）</label><input name="shipping" type="number" value="0"></div>
+<div><label>関税・輸入消費税等（円）</label><input name="tax" type="number" value="0"></div>
+<div><label>その他費用（円）</label><input name="other" type="number" value="0"></div>
+<div><label>支払い状況</label><select name="paid"><option>未払い</option><option>支払済み</option><option>一部支払</option><option>返金待ち</option></select></div>
+<div class="span2"><label>メモ</label><textarea name="memo" rows="2" placeholder="配送条件、販売者とのやり取りなど"></textarea></div>
+</div><div class="notice">商品代金＋送料＋税金＋その他費用を合算し、台数で割って1台あたりの輸入原価を計算します。為替手数料等は「その他費用」に含めてください。</div>
+<button class="primary full">仕入れと在庫を登録</button></form>`)}
+function addPurchase(e){e.preventDefault();let f=Object.fromEntries(new FormData(e.target));let qty=Math.max(1,Math.floor(num(f.qty)));let goods=num(f.unitUsd)*num(f.fx)*qty;let total=goods+num(f.shipping)+num(f.tax)+num(f.other);let p={id:crypto.randomUUID(),...f,qty,total,unitCost:total/qty,created:Date.now()};db.purchases.unshift(p);for(let i=0;i<qty;i++)db.items.unshift({id:crypto.randomUUID(),purchaseId:p.id,model:f.model,imei:'',serial:'',color:'',storage:'',condition:'未使用',status:'在庫',compliance:'未確認',memo:''});closeModal();save();tab('buy')}
+function openItem(id){let it=db.items.find(x=>x.id===id);if(!it)return;let p=db.purchases.find(x=>x.id===it.purchaseId);openModal('在庫情報を編集',`
+<form onsubmit="updateItem(event,'${id}')"><div class="formgrid">
+<div class="span2"><label>機種名</label><input name="model" value="${esc(it.model)}" required></div>
+<div><label>色</label><input name="color" value="${esc(it.color)}"></div><div><label>容量</label><input name="storage" value="${esc(it.storage)}" placeholder="例：512GB"></div>
+<div><label>IMEI</label><input name="imei" value="${esc(it.imei)}" inputmode="numeric"></div><div><label>シリアル番号</label><input name="serial" value="${esc(it.serial)}"></div>
+<div><label>商品状態</label><select name="condition">${['未使用','新品','中古','開封済み'].map(v=>`<option ${it.condition===v?'selected':''}>${v}</option>`).join('')}</select></div>
+<div><label>販売可否・確認状況</label><select name="compliance">${['未確認','確認中','確認済み','販売保留'].map(v=>`<option ${it.compliance===v?'selected':''}>${v}</option>`).join('')}</select></div>
+<div class="span2"><label>メモ</label><textarea name="memo">${esc(it.memo)}</textarea></div>
+</div><p class="small muted">仕入れ原価：${yen(p?.unitCost||0)} / 状態：${esc(it.status)}</p><button class="primary full">保存</button></form>`)}
+function updateItem(e,id){e.preventDefault();let it=db.items.find(x=>x.id===id);Object.assign(it,Object.fromEntries(new FormData(e.target)));closeModal();save()}
+function openSale(){let available=db.items.filter(i=>i.status==='在庫');if(!available.length){alert('販売登録できる在庫がありません。先に仕入れを登録してください。');return}
+openModal('販売を登録',`<form onsubmit="addSale(event)"><div class="formgrid">
+<div class="span2"><label>販売する商品 *</label><select name="itemId" required>${available.map(i=>`<option value="${i.id}">${esc(i.model)} ${esc(i.storage)} ${esc(i.color)} / ${yen(db.purchases.find(p=>p.id===i.purchaseId)?.unitCost||0)}</option>`).join('')}</select></div>
+<div><label>販売先 *</label><select name="platform"><option value="mercari">メルカリ</option><option value="paypay">PayPayフリマ</option><option value="yahoo">ヤフオク</option><option value="rakuma">楽天ラクマ</option></select></div>
+<div><label>販売日</label><input name="date" type="date" value="${dateNow()}"></div>
+<div><label>販売価格（円） *</label><input name="price" type="number" min="0" required></div>
+<div><label>手数料率（%）</label><input name="feeRate" type="number" step=".1" value="${db.fees.mercari??10}" required></div>
+<div><label>販売者負担送料（円）</label><input name="shipping" type="number" value="0"></div>
+<div><label>その他費用（円）</label><input name="other" type="number" value="0"></div>
+<div><label>入金状況</label><select name="payment"><option>未入金</option><option>入金済み</option><option>取引中</option><option>キャンセル</option></select></div>
+<div class="span2"><label>メモ・取引ID</label><input name="memo"></div>
+</div><button class="primary full">販売を登録して利益を計算</button></form>`)}
+document.addEventListener('change',e=>{if(e.target.name==='platform'){let rate=db.fees[e.target.value]??10;let el=document.querySelector('[name=feeRate]');if(el)el.value=rate}});
+function addSale(e){e.preventDefault();let f=Object.fromEntries(new FormData(e.target));let it=db.items.find(i=>i.id===f.itemId);if(!it||it.status!=='在庫')return alert('在庫状態を確認してください');let p=db.purchases.find(x=>x.id===it.purchaseId);let price=num(f.price),fee=price*num(f.feeRate)/100,profit=price-fee-num(f.shipping)-num(f.other)-num(p?.unitCost);let s={id:crypto.randomUUID(),...f,price,fee,profit,cost:num(p?.unitCost),feeRate:num(f.feeRate),created:Date.now()};db.sales.unshift(s);it.status='販売済み';it.saleId=s.id;closeModal();save();tab('sales')}
+function renderFx(){let d=document.getElementById('fxDisplay'),u=document.getElementById('fxUpdated');if(d)d.textContent=db.fxRate?`1 USD = ${Number(db.fxRate).toFixed(2)} 円`:'未取得';if(u)u.textContent=db.fxUpdated?`取得日時：${db.fxUpdated}`:'取得履歴なし'}
+async function fetchFx(){let status=document.getElementById('fxUpdated');if(status)status.textContent='取得中…';try{let r=await fetch('https://api.frankfurter.app/latest?from=USD&to=JPY',{cache:'no-store'});if(!r.ok)throw Error('rate api');let j=await r.json();let rate=Number(j.rates?.JPY);if(!rate)throw Error('rate missing');db.fxRate=rate;db.fxUpdated=new Date().toLocaleString('ja-JP');save();renderFx();alert(`USD/JPY ${rate.toFixed(2)} を取得しました。実際の決済レートとは異なる場合があります。`)}catch(e){if(status)status.textContent='取得できませんでした。通信状態を確認してください。'}}
+function fillPurchaseFx(){let el=document.querySelector('#modalBody [name="fx"]');if(!el)return;if(!db.fxRate){alert('先に設定・出力画面で為替レートを取得してください');return}el.value=Number(db.fxRate).toFixed(2)}
+function drawProfitChart(){let c=document.getElementById('profitChart');if(!c)return;let ctx=c.getContext('2d'),w=c.clientWidth||320,h=190,dpr=window.devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);let months=[];let now=new Date();for(let i=5;i>=0;i--){let d=new Date(now.getFullYear(),now.getMonth()-i,1),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');months.push({key,label:(d.getMonth()+1)+'月',value:0})}for(let sale of db.sales){if(sale.payment==='キャンセル')continue;let key=String(sale.date||'').slice(0,7),m=months.find(x=>x.key===key);if(m)m.value+=num(sale.profit)}let max=Math.max(0,...months.map(x=>x.value)),min=Math.min(0,...months.map(x=>x.value)),range=max-min||1,pad=30,base=h-pad-(max/(range))*(h-2*pad);ctx.strokeStyle='#dfe5ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,base);ctx.lineTo(w-8,base);ctx.stroke();let slot=(w-pad-12)/months.length,bw=Math.min(26,slot*.55);months.forEach((m,i)=>{let x=pad+i*slot+slot/2,y0=base,valH=Math.abs(m.value)/range*(h-2*pad);ctx.fillStyle=m.value>=0?'#19865d':'#c44747';ctx.fillRect(x-bw/2,m.value>=0?base-valH:base,bw,Math.max(2,valH));ctx.fillStyle='#647084';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(m.label,x,h-8);if(m.value){ctx.fillStyle='#26334a';ctx.font='10px sans-serif';ctx.fillText(Math.round(m.value/1000)+'千',x,m.value>=0?Math.max(12,base-valH-5):Math.min(h-25,base+valH+12))}});let total=months.reduce((a,x)=>a+x.value,0),summary=document.getElementById('chartSummary');if(summary)summary.textContent=`直近6か月の利益合計：${yen(total)}（登録データベース）`}
+window.addEventListener('resize',()=>{if(document.getElementById('home')&&!document.getElementById('home').classList.contains('hidden'))drawProfitChart()});
+async function runOCR(){let file=document.getElementById('ocrFile')?.files?.[0],status=document.getElementById('ocrStatus'),out=document.getElementById('ocrResult');if(!file){alert('先に請求書・注文書の画像を選択してください');return}status.textContent='OCRエンジンを読み込み中…';try{if(!window.Tesseract){await new Promise((resolve,reject)=>{let sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=resolve;sc.onerror=reject;document.head.appendChild(sc)})}status.textContent='画像を解析中…（画像によって数十秒かかります）';let worker=await Tesseract.createWorker('eng+jpn');let result=await worker.recognize(file);out.value=result.data.text||'';await worker.terminate();status.textContent='読み取り完了。金額・通貨・注文番号を原本と照合してください。'}catch(e){status.textContent='読み取りに失敗しました。明るく撮影した画像で再試行してください。'}}
+function renderAll(){renderHome();renderPurchases();renderStock();renderSales();loadFeeInputs();renderFx()}
+function renderHome(){let sold=db.sales.filter(s=>s.payment!=='キャンセル');let profit=sold.reduce((a,s)=>a+num(s.profit),0);let stock=db.items.filter(i=>i.status==='在庫');let cost=stock.reduce((a,i)=>a+num(db.purchases.find(p=>p.id===i.purchaseId)?.unitCost),0);document.getElementById('mProfit').textContent=yen(profit);document.getElementById('mStock').textContent=stock.length+'台';document.getElementById('mSold').textContent=db.sales.filter(s=>s.payment!=='キャンセル').length+'台';document.getElementById('mCost').textContent=yen(cost);let revenue=sold.reduce((a,s)=>a+num(s.price),0);document.getElementById('mRevenue').textContent=yen(revenue);document.getElementById('mAvgProfit').textContent=yen(sold.length?profit/sold.length:0);
+let events=[...db.purchases.map(p=>({t:p.date||'',name:'仕入れ '+p.model,sub:`${p.qty}台・${yen(p.total)}`,time:p.created})),...db.sales.map(s=>({t:s.date||'',name:(s.payment==='キャンセル'?'販売キャンセル ':'販売 ')+(db.items.find(i=>i.id===s.itemId)?.model||''),sub:`${platformName(s.platform)}・${s.payment==='キャンセル'?'履歴保存':('利益 '+yen(s.profit))}`,time:s.cancelledAt||s.created}))].sort((a,b)=>b.time-a.time).slice(0,5);document.getElementById('recent').innerHTML=events.length?events.map(x=>`<div class="item"><div class="row"><b>${esc(x.name)}</b><span class="small muted">${esc(x.t)}</span></div><div class="small muted">${esc(x.sub)}</div></div>`).join(''):'<div class="empty">まだ記録がありません。最初の仕入れを登録しましょう。</div>';drawProfitChart()}
+function renderPurchases(){let el=document.getElementById('purchases');el.innerHTML=db.purchases.length?db.purchases.map(p=>`<div class="item"><div class="row"><b>${esc(p.model)}</b><span class="pill ${p.paid==='支払済み'?'ok':'warn'}">${esc(p.paid)}</span></div><div class="small muted">${esc(p.date)} ・ ${p.qty}台 ・ ${esc(p.seller||'販売者未登録')}</div><div class="row"><span>総原価 ${yen(p.total)}</span><b>1台 ${yen(p.unitCost)}</b></div><div class="small muted">注文番号：${esc(p.orderNo||'未登録')} / 請求番号：${esc(p.invoiceNo||'未登録')}</div><div class="actions"><button class="secondary" onclick="showPurchase('${p.id}')">詳細</button></div></div>`).join(''):'<div class="empty">仕入れ記録はまだありません。</div>'}
+function showPurchase(id){let p=db.purchases.find(x=>x.id===id);if(!p)return;openModal('仕入れ詳細',`<p><b>${esc(p.model)}</b></p><p class="small">販売者：${esc(p.seller)}<br>注文番号：${esc(p.orderNo)}<br>請求番号：${esc(p.invoiceNo)}<br>商品代金：${yen(num(p.unitUsd)*num(p.fx)*num(p.qty))}<br>送料：${yen(p.shipping)}<br>税金：${yen(p.tax)}<br>その他：${yen(p.other)}<br>総原価：<b>${yen(p.total)}</b><br>1台あたり：<b>${yen(p.unitCost)}</b></p><button class="danger" onclick="deletePurchase('${id}')">仕入れ記録を削除</button>`)}
+function deletePurchase(id){if(db.items.some(i=>i.purchaseId===id&&i.status==='販売済み'))return alert('販売済み商品がある仕入れ記録は削除できません。');if(!confirm('この仕入れと紐づく在庫を削除しますか？'))return;db.purchases=db.purchases.filter(p=>p.id!==id);db.items=db.items.filter(i=>i.purchaseId!==id);closeModal();save()}
+function renderStock(){let q=(document.getElementById('stockSearch')?.value||'').toLowerCase();let arr=db.items.filter(i=>{let p=db.purchases.find(x=>x.id===i.purchaseId);return [i.model,i.imei,i.serial,i.storage,i.color,p?.orderNo,p?.invoiceNo,p?.seller].join(' ').toLowerCase().includes(q)});document.getElementById('stockCount').textContent=db.items.filter(i=>i.status==='在庫').length+'台';document.getElementById('stocks').innerHTML=arr.length?arr.map(i=>{let p=db.purchases.find(x=>x.id===i.purchaseId);return `<div class="item"><div class="row"><b>${esc(i.model)}</b><span class="pill ${i.status==='在庫'?'ok':''}">${esc(i.status)}</span></div><div class="small muted">${esc(i.storage||'容量未登録')} ・ ${esc(i.color||'色未登録')} ・ ${esc(i.condition)}</div><div class="row"><span>原価 ${yen(p?.unitCost||0)}</span><span class="pill ${i.compliance==='確認済み'?'ok':i.compliance==='販売保留'?'bad':'warn'}">${esc(i.compliance)}</span></div><div class="small muted">IMEI：${esc(i.imei||'未登録')}</div><div class="actions"><button class="secondary" onclick="openItem('${i.id}')">編集</button></div></div>`}).join(''):'<div class="empty">該当する在庫はありません。</div>'}
+function platformName(p){return {mercari:'メルカリ',paypay:'PayPayフリマ',yahoo:'ヤフオク',rakuma:'楽天ラクマ'}[p]||p}
+function renderSales(){let el=document.getElementById('salesList');let pf=document.getElementById('salesPlatformFilter')?.value||'',sf=document.getElementById('salesStatusFilter')?.value||'';let rows=db.sales.filter(s=>(!pf||s.platform===pf)&&(!sf||s.payment===sf));el.innerHTML=rows.length?rows.map(s=>{let i=db.items.find(x=>x.id===s.itemId);return `<div class="item"><div class="row"><b>${esc(i?.model||'商品')}</b><span class="pill ${s.payment==='キャンセル'?'bad':s.payment==='入金済み'?'ok':'warn'}">${platformName(s.platform)} / ${esc(s.payment)}</span></div><div class="small muted">${esc(s.date)} ・ ${esc(i?.storage||'容量未登録')} ・ ${esc(i?.color||'色未登録')}</div><div class="row"><span>売価 ${yen(s.price)}</span><b class="${s.profit>=0?'green':'red'}">利益 ${yen(s.profit)}</b></div><div class="small muted">原価 ${yen(s.cost)} / 手数料 ${yen(s.fee)} / 送料等 ${yen(num(s.shipping)+num(s.other))}</div><div class="actions"><button class="secondary" onclick="showSale('${s.id}')">詳細</button></div></div>`}).join(''):'<div class="empty">該当する販売記録はありません。</div>'}
+function showSale(id){let s=db.sales.find(x=>x.id===id);if(!s)return;let i=db.items.find(x=>x.id===s.itemId),net=num(s.price)-num(s.fee)-num(s.shipping)-num(s.other),margin=num(s.price)?num(s.profit)/num(s.price)*100:0;openModal('販売詳細',`<p><b>${esc(i?.model||'商品')}</b> / ${platformName(s.platform)}</p><p class="small">販売日：${esc(s.date)}<br>状態：${esc(s.payment)}<br>売価：${yen(s.price)}<br>仕入原価：${yen(s.cost)}<br>販売手数料：${yen(s.fee)}（${num(s.feeRate)}%）<br>送料：${yen(s.shipping)}<br>その他：${yen(s.other)}<br>手取り額：${yen(net)}<br><b>利益：${yen(s.profit)}</b><br>利益率：${margin.toFixed(1)}%</p>${s.payment==='キャンセル'?'<div class="notice">この取引はキャンセル済みです。履歴として保存されています。</div>':`<button class="secondary" onclick="editPayment('${id}')">入金状況を変更</button> <button class="danger" onclick="cancelSale('${id}')">取引キャンセル</button>`}`)}
+function editPayment(id){let s=db.sales.find(x=>x.id===id);let v=prompt('入金状況を入力：未入金 / 入金済み / 取引中',s.payment);if(['未入金','入金済み','取引中'].includes(v)){s.payment=v;closeModal();save()}}
+function cancelSale(id){if(!confirm('この販売をキャンセル扱いにしますか？在庫に戻し、販売履歴は残します。'))return;let s=db.sales.find(x=>x.id===id);if(!s)return;let it=db.items.find(x=>x.id===s.itemId);if(it){it.status='在庫';delete it.saleId}s.payment='キャンセル';s.cancelledAt=Date.now();closeModal();save()}
+function loadFeeInputs(){for(let k of ['mercari','paypay','yahoo','rakuma']){let e=document.getElementById('fee'+k[0].toUpperCase()+k.slice(1));if(e)e.value=db.fees[k]??10}}
+function saveFees(){for(let k of ['mercari','paypay','yahoo','rakuma']){let e=document.getElementById('fee'+k[0].toUpperCase()+k.slice(1));db.fees[k]=num(e.value)}save();alert('手数料設定を保存しました。販売登録時に初期値として使います。')}
+function downloadBlob(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function exportData(){downloadBlob(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),'phone-business-backup-'+dateNow()+'.json')}
+function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+function exportSalesCsv(){let head=['販売日','機種','容量','色','販売先','入金状況','販売価格','原価','手数料','送料','その他費用','利益','利益率','メモ'];let rows=db.sales.map(s=>{let i=db.items.find(x=>x.id===s.itemId);return [s.date,i?.model,i?.storage,i?.color,platformName(s.platform),s.payment,s.price,s.cost,s.fee,s.shipping,s.other,s.profit,num(s.price)?(num(s.profit)/num(s.price)*100).toFixed(1)+'%':'0%',s.memo]});let csv='\uFEFF'+[head,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'sales-'+dateNow()+'.csv')}
+function importData(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.items)||!Array.isArray(x.purchases)||!Array.isArray(x.sales))throw Error();if(!confirm('現在のデータをバックアップ内容で置き換えます。念のため現在データのバックアップもダウンロードします。続けますか？'))return;exportData();db=normalizeData(x);save();alert('復元しました。現在データのバックアップも保存しました。')}catch(err){alert('バックアップファイルを読み込めませんでした')}e.target.value=''};r.readAsText(file)}
+function clearAll(){if(confirm('すべての仕入れ・在庫・販売データを削除します。本当によろしいですか？')){db=blank();save();alert('削除しました')}}
+renderAll();
+if(migrationCount){setTimeout(()=>alert('旧バージョンのデータ '+migrationCount+' 件を新形式へ移行しました。旧データはブラウザ内に残しています。設定・データ管理からJSONバックアップを保存してください。旧アプリの販売分は入金状況を「取引中」として移行したため、必要に応じて確認してください。'),700)}
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
-</body>
-</html>
+</body></html>
