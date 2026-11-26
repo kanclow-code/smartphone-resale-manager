@@ -52,8 +52,8 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <div class="notice">重要：ここに表示される利益は登録した原価・手数料・送料等に基づく管理上の概算です。税務上の所得・消費税納税額とは異なります。</div>
 </section>
 <section id="buy" class="hidden">
-<div class="row"><h2>仕入れ管理</h2><button class="primary" onclick="openPurchase()">＋ 仕入れ登録</button></div>
-<div class="card"><div class="row"><div class="small muted">Alibabaの注文・支払い・輸入費用を記録します。登録すると在庫商品を台数分作成します。</div><button class="secondary" onclick="exportPurchasesCsv()">仕入CSV出力</button></div><div id="purchases"></div></div>
+<div class="row"><h2>仕入れ管理</h2><button class="secondary" onclick="exportPurchasesCsv()">仕入CSV出力</button></div>
+<div class="card"><div class="small muted">Alibabaの注文・支払い・輸入費用を記録します。登録すると在庫商品を台数分作成します。</div><div class="actions" style="justify-content:flex-end;margin:10px 0"><button class="primary" onclick="openPurchase()">＋ 仕入れ登録</button></div><div id="purchases"></div></div>
 </section>
 <section id="stock" class="hidden">
 <div class="row"><h2>在庫管理</h2><div class="actions"><span class="pill" id="stockCount">0台</span><button class="secondary" onclick="exportStockCsv()">在庫CSV出力</button></div></div>
