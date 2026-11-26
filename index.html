@@ -76,12 +76,12 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <div id="stocks"></div></div>
 </section>
 <section id="sales" class="hidden">
-<div class="row"><h2>販売管理</h2><button class="primary" onclick="openSale()">＋ 販売登録</button></div>
-<div class="card"><div class="small muted">販売先ごとの売価・手数料・送料を記録し、商品ごとの利益を計算します。キャンセル履歴も残ります。</div><div class="formgrid"><div><label>販売先で絞り込み</label><select id="salesPlatformFilter" onchange="renderSales()"><option value="">すべて</option><option value="mercari">メルカリ</option><option value="paypay">PayPayフリマ</option><option value="yahoo">ヤフオク</option><option value="rakuma">楽天ラクマ</option></select></div><div><label>状態で絞り込み</label><select id="salesStatusFilter" onchange="renderSales()"><option value="">すべて</option><option>入金済み</option><option>未入金</option><option>取引中</option><option>キャンセル</option></select></div></div><div id="salesList"></div></div>
+<h2>販売管理</h2>
+<div class="card"><div class="small muted">販売先ごとの売価・手数料・送料を記録し、商品ごとの利益を計算します。キャンセル履歴も残ります。</div><div class="actions" style="justify-content:flex-end;margin:10px 0"><button class="primary" onclick="openSale()">＋ 販売登録</button></div><div class="formgrid"><div><label>販売先で絞り込み</label><select id="salesPlatformFilter" onchange="renderSales()"><option value="">すべて</option><option value="mercari">メルカリ</option><option value="paypay">PayPayフリマ</option><option value="yahoo">ヤフオク</option><option value="rakuma">楽天ラクマ</option></select></div><div><label>状態で絞り込み</label><select id="salesStatusFilter" onchange="renderSales()"><option value="">すべて</option><option>入金済み</option><option>未入金</option><option>取引中</option><option>キャンセル</option></select></div></div><div id="salesList"></div></div>
 </section>
 <section id="report" class="hidden">
-<div class="row"><h2>月次レポート</h2><button class="primary" onclick="openExpense()">＋ 経費登録</button></div>
-<div class="card"><label for="reportMonth">集計する月</label><input id="reportMonth" type="month" value="${dateNow().slice(0,7)}" onchange="renderMonthlyReport()"><div id="monthlyReport"></div></div>
+<h2>月次レポート</h2>
+<div class="card"><div class="small muted">月ごとの売上・入金・利益と経費を確認します。経費を登録すると月次集計に反映されます。</div><div class="actions" style="justify-content:flex-end;margin:10px 0"><button class="primary" onclick="openExpense()">＋ 経費登録</button></div><label for="reportMonth">集計する月</label><input id="reportMonth" type="month" value="${dateNow().slice(0,7)}" onchange="renderMonthlyReport()"><div id="monthlyReport"></div></div>
 <div class="card"><div class="row"><b>経費記録</b><div class="actions"><span class="small muted">支払日ベース</span><button class="secondary" onclick="exportExpensesCsv()">経費CSV出力</button></div></div><div id="expenseList"></div></div>
 <div class="notice">このレポートは日々の経営管理用です。税務申告用の正式な帳簿・決算書ではありません。仕入れ支払いは在庫購入の資金移動として扱い、売れた商品の原価は販売利益に含まれるため二重計上しません。分割払いの過去月別内訳は現在記録していないため、仕入れ支払いは登録した累計額と最新支払日で表示します。</div>
 </section>
