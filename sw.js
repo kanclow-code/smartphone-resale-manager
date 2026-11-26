@@ -1,4 +1,4 @@
-const CACHE = 'importflow-pwa-v29';
+const CACHE = 'importflow-pwa-v30';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
