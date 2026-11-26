@@ -48,7 +48,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 </div>
 <div class="card"><b>販売先別の実績</b><div class="small muted">キャンセルを除いた販売記録</div><div id="platformSummary" class="grid" style="margin-top:8px"></div></div>
 <div class="card"><div class="row"><b>最近の動き</b><span class="small muted">最新5件</span></div><div id="recent"></div></div>
-<div class="card"><div class="row"><b>月別利益の推移</b><button class="secondary" onclick="exportSalesCsv()">販売CSVを書き出す</button></div><div class="small muted">販売日ベース・キャンセルを除外</div><canvas id="profitChart" height="190" style="width:100%;height:190px"></canvas><div id="chartSummary" class="small muted"></div></div>
+<div class="card"><div class="row"><b>月別利益の推移</b></div><div class="small muted">販売日ベース・キャンセルを除外</div><canvas id="profitChart" height="190" style="width:100%;height:190px"></canvas><div id="chartSummary" class="small muted"></div></div>
 <div class="notice">重要：ここに表示される利益は登録した原価・手数料・送料等に基づく管理上の概算です。税務上の所得・消費税納税額とは異なります。</div>
 </section>
 <section id="buy" class="hidden">
@@ -76,7 +76,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:20px 0}
 <div id="stocks"></div></div>
 </section>
 <section id="sales" class="hidden">
-<h2>販売管理</h2>
+<div class="row"><h2>販売管理</h2><button class="secondary" onclick="exportSalesCsv()">販売CSV出力</button></div>
 <div class="card"><div class="small muted">販売先ごとの売価・手数料・送料を記録し、商品ごとの利益を計算します。キャンセル履歴も残ります。</div><div class="actions" style="justify-content:flex-end;margin:10px 0"><button class="primary" onclick="openSale()">＋ 販売登録</button></div><div class="formgrid"><div><label>販売先で絞り込み</label><select id="salesPlatformFilter" onchange="renderSales()"><option value="">すべて</option><option value="mercari">メルカリ</option><option value="paypay">PayPayフリマ</option><option value="yahoo">ヤフオク</option><option value="rakuma">楽天ラクマ</option></select></div><div><label>状態で絞り込み</label><select id="salesStatusFilter" onchange="renderSales()"><option value="">すべて</option><option>入金済み</option><option>未入金</option><option>取引中</option><option>キャンセル</option></select></div></div><div id="salesList"></div></div>
 </section>
 <section id="report" class="hidden">
